@@ -10,4 +10,108 @@ export default defineSchema({
   numbers: defineTable({
     value: v.number(),
   }),
+
+  // Company profiles (extends user data)
+  companies: defineTable({
+    userId: v.id("users"),
+    companyName: v.string(),
+    companyLogo: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  // Contact lists
+  contacts: defineTable({
+    companyId: v.id("companies"),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phoneNumber: v.optional(v.string()),
+    unsubscribed: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_company", ["companyId"])
+    .index("by_company_and_unsubscribed", ["companyId", "unsubscribed"])
+    .index("by_email", ["email"])
+    .index("by_phone", ["phoneNumber"]),
+
+  // Campaigns
+  campaigns: defineTable({
+    companyId: v.id("companies"),
+    name: v.string(),
+    type: v.union(v.literal("sms"), v.literal("email"), v.literal("both")),
+    status: v.union(v.literal("draft"), v.literal("paid"), v.literal("sent")),
+    content: v.object({}), // SMS message or email content
+    recipientCount: v.number(),
+    totalCost: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_company", ["companyId"])
+    .index("by_company_and_status", ["companyId", "status"])
+    .index("by_type", ["type"])
+    .index("by_status", ["status"]),
+
+  // Campaign analytics and tracking
+  campaignAnalytics: defineTable({
+    campaignId: v.id("campaigns"),
+    contactId: v.id("contacts"),
+    type: v.union(v.literal("sms"), v.literal("email")),
+    status: v.union(
+      v.literal("sent"),
+      v.literal("delivered"),
+      v.literal("failed"),
+      v.literal("bounced"),
+      v.literal("opened"),
+      v.literal("clicked"),
+      v.literal("unsubscribed")
+    ),
+    sentAt: v.number(),
+    deliveredAt: v.optional(v.number()),
+    openedAt: v.optional(v.number()),
+    clickedAt: v.optional(v.number()),
+    errorMessage: v.optional(v.string()),
+  })
+    .index("by_campaign", ["campaignId"])
+    .index("by_campaign_and_type", ["campaignId", "type"])
+    .index("by_contact", ["contactId"])
+    .index("by_status", ["status"]),
+
+  // Unsubscribe tokens for GDPR compliance
+  unsubscribeTokens: defineTable({
+    campaignId: v.id("campaigns"),
+    contactId: v.id("contacts"),
+    token: v.string(),
+    type: v.union(v.literal("sms"), v.literal("email")),
+    used: v.boolean(),
+    usedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_token", ["token"])
+    .index("by_campaign", ["campaignId"])
+    .index("by_contact", ["contactId"])
+    .index("by_type", ["type"]),
+
+  // GDPR compliance logging
+  gdprLogs: defineTable({
+    companyId: v.id("companies"),
+    action: v.union(
+      v.literal("consent_given"),
+      v.literal("consent_withdrawn"),
+      v.literal("data_export"),
+      v.literal("data_deletion"),
+      v.literal("unsubscribe"),
+      v.literal("contact_import")
+    ),
+    userId: v.optional(v.id("users")),
+    contactId: v.optional(v.id("contacts")),
+    campaignId: v.optional(v.id("campaigns")),
+    details: v.optional(v.string()),
+    ipAddress: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_company", ["companyId"])
+    .index("by_action", ["action"])
+    .index("by_user", ["userId"])
+    .index("by_contact", ["contactId"])
+    .index("by_campaign", ["campaignId"]),
 });

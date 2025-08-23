@@ -346,13 +346,18 @@ users -> companies -> contacts
 ### Twilio Configuration
 
 ```typescript
-// Supported Countries & Pricing
+// Supported Countries & Pricing (SEK)
 const SMS_PRICING = {
-  SE: { country: "Sweden", prefix: "+46", cost: 0.12 },
-  DK: { country: "Denmark", prefix: "+45", cost: 0.11 },
-  NO: { country: "Norway", prefix: "+47", cost: 0.13 },
-  FI: { country: "Finland", prefix: "+358", cost: 0.17 },
-  DE: { country: "Germany", prefix: "+49", cost: 0.22 },
+  SE: { country: "Sweden", prefix: "+46", cost: 1.25 },
+  DK: { country: "Denmark", prefix: "+45", cost: 1.15 },
+  NO: { country: "Norway", prefix: "+47", cost: 1.35 },
+  FI: { country: "Finland", prefix: "+358", cost: 1.75 },
+  DE: { country: "Germany", prefix: "+49", cost: 2.25 },
+};
+
+// Email pricing (SEK per 1000 emails)
+const EMAIL_PRICING = {
+  ALL: { cost: 34.0 }, // SEK per 1000 emails
 };
 ```
 

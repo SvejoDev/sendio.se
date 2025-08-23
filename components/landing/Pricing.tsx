@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 const smsPricing = [
-  { country: "Sverige (+46)", price: "$0.12 / SMS" },
-  { country: "Danmark (+45)", price: "$0.11 / SMS" },
-  { country: "Norge (+47)", price: "$0.13 / SMS" },
-  { country: "Finland (+358)", price: "$0.17 / SMS" },
-  { country: "Tyskland (+49)", price: "$0.22 / SMS" },
+  { country: "Sverige (+46)", price: "1,25 kr / SMS" },
+  { country: "Danmark (+45)", price: "1,15 kr / SMS" },
+  { country: "Norge (+47)", price: "1,35 kr / SMS" },
+  { country: "Finland (+358)", price: "1,75 kr / SMS" },
+  { country: "Tyskland (+49)", price: "2,25 kr / SMS" },
 ];
 
 export default function Pricing() {
@@ -22,7 +22,7 @@ export default function Pricing() {
           </h2>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
             Betala per kampanj. Se kostnaden i realtid innan betalning. Priser
-            nedan baseras på marknadsdata (USD).
+            nedan i svenska kronor (SEK).
           </p>
         </div>
 
@@ -52,7 +52,7 @@ export default function Pricing() {
             </CardHeader>
             <CardContent>
               <p className="text-sm">
-                $3.25 per 1 000 e‑post (alla länder). Innehåller spårning av
+                34,00 kr per 1 000 e‑post (alla länder). Innehåller spårning av
                 öppningar och klick.
               </p>
             </CardContent>
