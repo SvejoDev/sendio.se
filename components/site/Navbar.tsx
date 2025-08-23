@@ -26,9 +26,11 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetFooter,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export default function Navbar() {
   const { isAuthenticated } = useConvexAuth();
@@ -118,41 +120,49 @@ export default function Navbar() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle>Sendio</SheetTitle>
+            <SheetContent
+              side="right"
+              className="w-[90vw] gap-0 p-0 sm:max-w-sm"
+            >
+              <SheetHeader className="p-4 border-b">
+                <SheetTitle className="text-base">Sendio</SheetTitle>
               </SheetHeader>
-              <div className="mt-4 flex flex-col gap-2">
+
+              <nav className="py-1">
                 <Link
                   href="/#funktioner"
                   onClick={() => setOpen(false)}
-                  className="py-2"
+                  className="block px-4 py-3 text-base font-medium hover:bg-accent hover:text-accent-foreground"
                 >
                   Funktioner
                 </Link>
                 <Link
                   href="/#priser"
                   onClick={() => setOpen(false)}
-                  className="py-2"
+                  className="block px-4 py-3 text-base font-medium hover:bg-accent hover:text-accent-foreground"
                 >
                   Priser
                 </Link>
                 <Link
                   href="/#sa-fungerar-det"
                   onClick={() => setOpen(false)}
-                  className="py-2"
+                  className="block px-4 py-3 text-base font-medium hover:bg-accent hover:text-accent-foreground"
                 >
                   Så fungerar det
                 </Link>
-                <div className="h-px my-2 bg-border" />
+              </nav>
+
+              <Separator />
+
+              <SheetFooter className="gap-3 p-4">
                 {!isAuthenticated ? (
-                  <div className="flex gap-2">
-                    <Button variant="ghost" asChild className="flex-1">
+                  <div className="grid grid-cols-2 gap-2 w-full">
+                    <Button variant="ghost" asChild className="justify-center">
                       <Link href="/signin" onClick={() => setOpen(false)}>
                         Logga in
                       </Link>
                     </Button>
-                    <Button asChild className="flex-1">
+                    <Button asChild>
                       <Link
                         href="/signin?flow=signUp"
                         onClick={() => setOpen(false)}
@@ -174,7 +184,7 @@ export default function Navbar() {
                     Logga ut
                   </Button>
                 )}
-              </div>
+              </SheetFooter>
             </SheetContent>
           </Sheet>
         </div>

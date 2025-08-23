@@ -4,6 +4,7 @@ import "./globals.css";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
 import Navbar from "@/components/site/Navbar";
+import Footer from "@/components/site/Footer";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <Navbar />
             {children}
+            <Footer />
           </ConvexClientProvider>
         </body>
       </html>
