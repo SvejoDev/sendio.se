@@ -1,0 +1,552 @@
+# Tech Stack Specifications - Sendio
+
+## 🏗 Core Framework & Build Tools
+
+### Frontend Framework
+
+- **Vite 5.0+** - Fast build tool and development server
+- **React 18** - Component-based UI library
+- **TypeScript 5.0+** - Type safety and developer experience
+- **React Router** - Client-side routing (if needed beyond single-page)
+
+### Build Configuration
+
+```typescript
+// vite.config.ts (already configured in starter)
+export default defineConfig({
+  plugins: [react()],
+  optimizeDeps: {
+    exclude: ["convex"],
+  },
+});
+```
+
+### Package Manager
+
+- **npm** - Package management (as used in starter kit)
+
+## 🎨 Styling & UI Components
+
+### CSS Framework
+
+- **Tailwind CSS 3.4+** - Utility-first CSS framework
+- **PostCSS** - CSS processing and optimization
+- **Custom CSS Variables** - Theme and color management
+
+### Component Library
+
+- **shadcn/ui** - High-quality, accessible components
+- **Radix UI** - Headless UI primitives (underlying shadcn/ui)
+- **Lucide React** - Beautiful icon library
+
+### Already Available Components (from starter)
+
+```typescript
+// Available in src/components/ui/
+- Button
+- Card
+- Dialog
+- Dropdown Menu
+- Input OTP
+- Input
+- Skeleton
+- Tabs
+- Toast & Toaster
+- Toggle Group
+- Toggle
+```
+
+### Additional Components Needed
+
+```typescript
+// To be created for Sendio
+- Badge
+- Checkbox
+- Label
+- Select
+- Textarea
+- Progress
+- Alert
+- Table
+- Calendar (for scheduling)
+- Sheet (for mobile menus)
+```
+
+### Design System
+
+```css
+/* Sendio Color Palette */
+:root {
+  /* Primary Colors */
+  --primary-blue: #2563eb; /* Trust, reliability */
+  --primary-green: #16a34a; /* Success, money */
+  --primary-gray: #1f2937; /* Text, headers */
+
+  /* Secondary Colors */
+  --secondary-light: #f8fafc; /* Background */
+  --secondary-gray: #64748b; /* Muted text */
+  --accent-orange: #ea580c; /* CTAs, highlights */
+
+  /* Status Colors */
+  --success: #16a34a;
+  --warning: #d97706;
+  --error: #dc2626;
+  --info: #2563eb;
+
+  /* GDPR Compliance */
+  --gdpr-blue: #1e40af; /* Legal, compliance */
+  --unsubscribe: #dc2626; /* Unsubscribe actions */
+}
+```
+
+### Typography
+
+```css
+/* Font Stack */
+font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+/* Headings */
+.text-h1 {
+  @apply text-4xl font-bold text-primary-gray;
+}
+.text-h2 {
+  @apply text-3xl font-semibold text-primary-gray;
+}
+.text-h3 {
+  @apply text-2xl font-medium text-primary-gray;
+}
+
+/* Body Text */
+.text-body {
+  @apply text-base text-primary-gray;
+}
+.text-muted {
+  @apply text-sm text-secondary-gray;
+}
+
+/* Special Text */
+.text-price {
+  @apply text-lg font-semibold text-primary-green;
+}
+.text-error {
+  @apply text-sm text-error;
+}
+```
+
+## 🗄 Backend & Database
+
+### Database
+
+- **Convex** - Real-time database with TypeScript
+- **Real-time subscriptions** - Live data updates
+- **File storage** - Built-in file handling for images/uploads
+- **Serverless functions** - Backend logic in Convex functions
+
+### Authentication
+
+- **Convex Auth** - Pre-configured authentication system
+- **Resend OTP** - Email-based verification (already configured)
+- **Password Auth** - Email/password authentication
+- **Session Management** - Secure session handling
+
+### Already Configured (from starter)
+
+```typescript
+// convex/auth.ts - Authentication configuration
+// convex/users.ts - User management
+// convex/schema.ts - Database schema (to be extended)
+```
+
+### Data Storage Strategy
+
+```typescript
+// Convex Tables Structure
+users -> companies -> contacts
+                  -> campaigns -> analytics
+                              -> unsubscribe_tokens
+```
+
+## 📧 Email Services
+
+### Transactional Emails (Authentication)
+
+- **Resend** - OTP codes, password reset emails
+- **Already configured** in starter kit
+- **Use for**: Registration verification, password reset, account notifications
+
+### Marketing Emails (Campaigns)
+
+- **Mailgun** - Bulk email sending with tracking
+- **EU Endpoint**: api.eu.mailgun.net (GDPR compliance)
+- **Features**: Open tracking, click tracking, delivery webhooks
+- **Domain**: mg.svejo.se (to be configured)
+
+### Email Separation Strategy
+
+```typescript
+// Resend (Transactional)
+- OTP verification emails
+- Password reset emails
+- Account notifications
+- System alerts
+
+// Mailgun (Marketing)
+- Customer campaign emails
+- Marketing newsletters
+- Bulk promotional emails
+- GDPR-compliant unsubscribe handling
+```
+
+## 📱 SMS Services
+
+### SMS Provider
+
+- **Twilio** - SMS sending and delivery tracking
+- **Pay-as-you-go** pricing model
+- **Webhook support** for delivery status
+- **Custom sender ID** support
+- **International SMS** to Nordic countries + Germany
+
+### Twilio Configuration
+
+```typescript
+// Supported Countries & Pricing
+const SMS_PRICING = {
+  SE: { country: "Sweden", prefix: "+46", cost: 0.12 },
+  DK: { country: "Denmark", prefix: "+45", cost: 0.11 },
+  NO: { country: "Norway", prefix: "+47", cost: 0.13 },
+  FI: { country: "Finland", prefix: "+358", cost: 0.17 },
+  DE: { country: "Germany", prefix: "+49", cost: 0.22 },
+};
+```
+
+## 💳 Payment Processing
+
+### Payment Provider
+
+- **Stripe** - Payment processing and webhooks
+- **Currency**: Swedish Krona (SEK)
+- **Features**: Payment intents, webhook handling, refunds
+- **PCI Compliance**: Handled by Stripe (no card data storage)
+
+### Stripe Integration
+
+```typescript
+// Payment Configuration
+const STRIPE_CONFIG = {
+  currency: "sek",
+  paymentMethods: ["card", "klarna", "swish"], // Swedish payment methods
+  webhookEvents: ["payment_intent.succeeded", "payment_intent.payment_failed"],
+};
+```
+
+## 🚀 Hosting & Deployment
+
+### Hosting Platform
+
+- **Vercel** - Frontend hosting and serverless functions
+- **Custom Domain**: sendio.se (purchased on Loopia)
+- **SSL**: Automatic HTTPS with Vercel
+- **CDN**: Global content delivery network
+
+### Environment Configuration
+
+```bash
+# Production Environment Variables
+VITE_CONVEX_URL=https://your-deployment.convex.cloud
+CONVEX_DEPLOYMENT=your-deployment-name
+
+# Resend (Transactional emails)
+RESEND_API_KEY=re_xxx
+
+# Mailgun (Marketing emails)
+MAILGUN_API_KEY=key-xxx
+MAILGUN_DOMAIN=mg.svejo.se
+
+# Twilio (SMS)
+TWILIO_ACCOUNT_SID=ACxxx
+TWILIO_AUTH_TOKEN=xxx
+TWILIO_PHONE_NUMBER=+46xxx
+
+# Stripe (Payments)
+STRIPE_SECRET_KEY=sk_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+VITE_STRIPE_PUBLISHABLE_KEY=pk_xxx
+
+# App Configuration
+VITE_APP_URL=https://sendio.se
+```
+
+## 🔧 Development Tools
+
+### Code Quality
+
+- **ESLint** - JavaScript/TypeScript linting
+- **TypeScript** - Static type checking
+- **Prettier** - Code formatting (to be added)
+
+### Testing (Optional for MVP)
+
+- **Vitest** - Unit testing (already configured in starter)
+- **Testing Library** - Component testing
+- **Playwright** - E2E testing (future addition)
+
+### Development Workflow
+
+```bash
+# Development Commands
+npm run dev          # Start Vite dev server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npx convex dev       # Start Convex development
+```
+
+## 📱 Mobile & Responsive Design
+
+### Responsive Breakpoints
+
+```css
+/* Tailwind CSS Breakpoints */
+sm: 640px   /* Small tablets */
+md: 768px   /* Tablets */
+lg: 1024px  /* Laptops */
+xl: 1280px  /* Desktops */
+2xl: 1536px /* Large screens */
+```
+
+### Mobile-First Strategy
+
+- **Touch-friendly**: Minimum 44px touch targets
+- **Performance**: Optimized for mobile networks
+- **Navigation**: Hamburger menu for mobile
+- **Forms**: Mobile-optimized input fields
+- **Previews**: SMS/Email mobile previews
+
+## 🔒 Security & Compliance
+
+### Authentication Security
+
+- **Convex Auth** - Secure session management
+- **OTP Verification** - Email-based verification via Resend
+- **Password Hashing** - Secure password storage
+- **Session Tokens** - JWT-based authentication
+
+### GDPR Compliance Tools
+
+```typescript
+// GDPR Implementation
+interface GDPRCompliance {
+  consentTracking: boolean; // Track user consent
+  dataMinimization: boolean; // Collect minimal data
+  rightToDelete: boolean; // User data deletion
+  rightToAccess: boolean; // Data export functionality
+  unsubscribeLinks: boolean; // Mandatory unsubscribe
+  auditLogging: boolean; // Compliance event logging
+}
+```
+
+### Data Protection
+
+- **Encryption**: Data encrypted in transit and at rest
+- **Access Control**: Role-based data access
+- **Audit Trails**: All GDPR actions logged
+- **Data Retention**: Configurable retention policies
+
+## 🔌 API Integrations
+
+### Webhook Handling
+
+```typescript
+// Webhook Endpoints (Convex HTTP actions)
+/api/behkoosw /
+  stripe / // Payment confirmations
+  api /
+  webhooks /
+  twilio / // SMS delivery status
+  api /
+  webhooks /
+  mailgun; // Email tracking events
+```
+
+### External API Rate Limits
+
+```typescript
+const RATE_LIMITS = {
+  twilio: {
+    sms: 1, // 1 SMS per second (basic account)
+    burst: 100, // Burst allowance
+  },
+  mailgun: {
+    emails: 100, // 100 emails per second (paid)
+    burst: 1000, // Burst allowance
+  },
+  stripe: {
+    requests: 100, // 100 requests per second
+    burst: 1000, // Burst allowance
+  },
+};
+```
+
+## 📊 Analytics & Monitoring
+
+### Performance Monitoring
+
+- **Vercel Analytics** - Performance insights
+- **Web Vitals** - Core web vitals tracking
+- **Error Tracking** - Runtime error monitoring
+
+### Business Analytics
+
+- **Convex Functions** - Custom analytics tracking
+- **Campaign Metrics** - SMS/Email performance
+- **User Behavior** - Feature usage tracking
+- **Revenue Tracking** - Payment and refund analytics
+
+## 🎨 UI/UX Implementation Strategy
+
+### Component Architecture
+
+```typescript
+// Component Structure
+src/
+├── components/
+│   ├── ui/              // shadcn/ui base components
+│   ├── landing/         // Landing page sections
+│   ├── campaigns/       // Campaign creation components
+│   ├── contacts/        // Contact management
+│   ├── analytics/       // Analytics dashboard
+│   ├── auth/           // Authentication forms
+│   └── common/         // Shared components
+├── pages/              // Route components
+├── hooks/              // Custom React hooks
+├── lib/                // Utility functions
+└── types/              // TypeScript type definitions
+```
+
+### Design System Implementation
+
+```typescript
+// Custom Design Tokens
+export const designTokens = {
+  colors: {
+    primary: "hsl(221, 83%, 53%)", // --primary-blue
+    success: "hsl(142, 76%, 36%)", // --primary-green
+    warning: "hsl(32, 95%, 44%)", // --accent-orange
+    error: "hsl(0, 84%, 60%)", // --error
+  },
+  spacing: {
+    xs: "0.25rem",
+    sm: "0.5rem",
+    md: "1rem",
+    lg: "1.5rem",
+    xl: "2rem",
+    xxl: "3rem",
+  },
+  borderRadius: {
+    sm: "0.25rem",
+    md: "0.5rem",
+    lg: "0.75rem",
+    full: "9999px",
+  },
+};
+```
+
+### Animation Framework
+
+- **CSS Transitions** - Simple hover effects
+- **Tailwind Animations** - Loading spinners, fade effects
+- **Framer Motion** (future) - Advanced animations
+
+## 🔄 State Management
+
+### Local State
+
+- **React useState** - Component-level state
+- **React useReducer** - Complex state logic
+- **Custom Hooks** - Reusable state logic
+
+### Server State
+
+- **Convex Queries** - Real-time data fetching
+- **Convex Mutations** - Data updates
+- **Convex Subscriptions** - Live data updates
+
+### Example State Patterns
+
+```typescript
+// Campaign Creation State
+interface CampaignState {
+  type: "sms" | "email" | "both";
+  content: {
+    sms?: SMSContent;
+    email?: EmailContent;
+  };
+  recipients: Contact[];
+  pricing: PricingBreakdown;
+  status: "draft" | "preview" | "payment" | "sending";
+}
+```
+
+## 📦 Package Dependencies
+
+### Core Dependencies (already in starter)
+
+```json
+{
+  "react": "^18.2.0",
+  "react-dom": "^18.2.0",
+  "typescript": "^5.0.0",
+  "vite": "^5.0.0",
+  "convex": "^1.13.0",
+  "tailwindcss": "^3.4.0"
+}
+```
+
+### Additional Dependencies Needed
+
+```json
+{
+  "stripe": "^14.0.0",
+  "papaparse": "^5.4.1", // CSV parsing
+  "react-dropzone": "^14.2.3", // File uploads
+  "react-hook-form": "^7.48.0", // Form handling
+  "recharts": "^2.8.0", // Analytics charts
+  "date-fns": "^2.30.0", // Date manipulation
+  "libphonenumber-js": "^1.10.0" // Phone validation
+}
+```
+
+### Type Definitions
+
+```json
+{
+  "@types/papaparse": "^5.3.14",
+  "@types/node": "^20.0.0"
+}
+```
+
+## 🚀 Performance Optimization
+
+### Bundle Optimization
+
+- **Code Splitting** - Route-based code splitting
+- **Tree Shaking** - Unused code elimination
+- **Asset Optimization** - Image compression and lazy loading
+
+### Runtime Performance
+
+- **Memoization** - React.memo for expensive components
+- **Virtual Scrolling** - Large contact lists
+- **Debounced Inputs** - Real-time search and pricing
+- **Optimistic Updates** - Immediate UI feedback
+
+### Loading Strategies
+
+```typescript
+// Lazy Loading Example
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const CampaignBuilder = lazy(() => import("./pages/campaigns/Create"));
+```
+
+This tech stack provides a solid foundation for building Sendio with modern tools, scalable architecture, and excellent developer experience while maintaining the existing Convex Auth starter kit structure.

@@ -1,0 +1,477 @@
+---
+alwaysApply: true
+---
+
+# Sendio - Marketing Platform Project Overview
+
+## 🎯 Project Vision
+
+Sendio is a revolutionary SMS & email marketing platform with **NO monthly subscriptions**. Companies pay only when they send campaigns, providing complete cost transparency and control. Built specifically for the Scandinavian market with GDPR compliance at its core.
+
+## 🏗 Tech Stack
+
+### Frontend & Framework
+
+- **Vite + React 18** - Fast development and modern React features
+- **TypeScript** - Type safety throughout the application
+- **Tailwind CSS** - Utility-first styling
+- **shadcn/ui** - High-quality component library
+- **Lucide React** - Beautiful icons
+
+### Backend & Database
+
+- **Convex** - Real-time database with TypeScript
+- **Convex Auth** - Authentication system (from starter kit)
+- **Resend** - Transactional emails (OTP, password reset)
+- **Mailgun** - Marketing campaign emails with tracking
+- **Twilio** - SMS campaigns
+
+### Payment & Infrastructure
+
+- **Stripe** - Payment processing (Swedish Krona)
+- **Vercel** - Hosting and deployment
+- **Domain**: sendio.se (already purchased on Loopia)
+
+### Development Tools
+
+- **Vite** - Build tool and dev server
+- **ESLint + TypeScript** - Code quality
+- **PostCSS** - CSS processing
+
+## 💰 Pricing Strategy (2025 Market Research)
+
+### SMS Pricing (Twilio + 100% markup)
+
+- **Sweden (+46)**: $0.12 per SMS
+- **Denmark (+45)**: $0.11 per SMS
+- **Norway (+47)**: $0.13 per SMS
+- **Finland (+358)**: $0.17 per SMS
+- **Germany (+49)**: $0.22 per SMS
+
+### Email Pricing (Mailgun + 150% markup)
+
+- **All Countries**: $3.25 per 1,000 emails
+
+### Key Pricing Features
+
+- **Real-time cost calculation** as user creates campaign
+- **Transparent pricing** - no hidden fees
+- **Pay-per-campaign** - zero monthly subscriptions
+- **100% refund** if campaign fails to send
+
+## 🎯 Target Market
+
+- **Primary**: Small businesses in Scandinavia + Germany
+- **Focus**: Companies tired of monthly subscription marketing tools
+- **Size**: 1-10,000 contacts per campaign
+
+## 🔑 Unique Selling Propositions
+
+1. **No Monthly Subscriptions** - Pay only when you send
+2. **Instant Cost Calculation** - See exact costs before payment
+3. **GDPR Compliant by Design** - Built for Swedish/EU regulations
+4. **Simple & Fast** - Upload contacts → Create campaign → Pay → Send
+5. **Combined Campaigns** - SMS + Email in one payment
+
+## 🛠 Core Features
+
+### Contact Management
+
+- **File Import**: CSV, Excel with column mapping
+- **Required Fields**: Either phone OR email (both optional but at least one)
+- **Optional Fields**: firstName, lastName for personalization
+- **Import Behavior**: New import completely replaces old contact list
+- **Manual Management**: Add, edit, delete contacts individually
+- **Validation**: Real-time email/phone validation with error reporting
+
+### SMS Campaigns
+
+- **Message Composer**: Real-time character counter
+- **Mobile Preview**: See how SMS looks on phone
+- **Custom Sender ID**: Alphanumeric sender (11 chars max)
+- **Variables**: {first_name}, {last_name} replacement
+- **AVREG Compliance**: Mandatory "Avreg {link}" auto-appended (Swedish GDPR)
+- **Test SMS**: Free test to user's number (1 per campaign)
+- **Character Calculation**: User limit = Twilio max - AVREG length
+
+### Email Campaigns
+
+- **Drag & Drop Builder**: Text, image, button, divider, social elements
+- **Templates**: 3-4 pre-made templates with replaceable content
+- **Subject Line**: Variable support ({first_name}, {last_name})
+- **From Setup**: Send from noreply@svejo.se with custom from name
+- **Reply-To**: Custom reply-to email address
+- **Preview**: Desktop email preview before sending
+- **Mandatory Footer**: Auto-added unsubscribe link (GDPR compliance)
+- **Trackable Links**: Click tracking for analytics
+
+### Campaign Types
+
+1. **SMS Only** - Text message campaigns
+2. **Email Only** - Email marketing campaigns
+3. **Combined** - SMS + Email together with single payment
+
+### Scheduling System
+
+- **Send Options**: Immediately after payment OR schedule up to 30 days
+- **Timezone**: User's timezone for scheduling
+- **Granularity**: Hourly scheduling intervals
+- **Modification**: Edit/cancel scheduled campaigns
+
+### Payment System
+
+- **Real-time Pricing**: Cost updates as user builds campaign
+- **Stripe Integration**: Secure payment in Swedish Krona (SEK)
+- **Payment Flow**: Create campaign → See cost → Pay → Auto-send
+- **Cost Breakdown**: Detailed pricing by SMS country + email count
+
+### Analytics Dashboard
+
+- **Real-time Updates**: Live data from Twilio/Mailgun webhooks
+- **SMS Metrics**: Sent, delivered, failed, undelivered
+- **Email Metrics**: Sent, delivered, opened, clicked, bounced, unsubscribed
+- **Export**: Download analytics data
+- **Historical**: Permanent data retention
+
+## 📊 User Journey
+
+1. **Authentication** → Register/login using Convex Auth
+2. **Contact Import** → Upload CSV/Excel with validation
+3. **Campaign Creation** → Choose SMS, Email, or Both
+4. **Content Creation** → Compose message/email with variables
+5. **Preview & Pricing** → See exact cost breakdown
+6. **Payment** → Pay via Stripe (SEK)
+7. **Sending** → Immediate or scheduled delivery
+8. **Analytics** → Track real-time campaign performance
+
+## 🔒 GDPR Compliance (Swedish Market)
+
+### Legal Framework
+
+- **Sendio**: Data Processor (Personuppgiftsbiträde)
+- **Customers**: Data Controllers (Personuppgiftsansvariga)
+
+### Mandatory Features
+
+- **DPA Acceptance**: Required during registration
+- **Consent Confirmation**: Before every contact import
+- **Unsubscribe System**: One-click AVREG for SMS, footer links for email
+- **Right to Delete**: Permanent contact deletion
+- **Right to Access**: Contact data export
+- **Compliance Logging**: All GDPR actions tracked with timestamps
+
+### SMS GDPR Requirements
+
+- **Mandatory AVREG**: Every SMS ends with "Avreg {unique_link}"
+- **Auto-append**: User cannot remove unsubscribe link
+- **One-click**: Simple unsubscribe landing page
+
+### Email GDPR Requirements
+
+- **Mandatory Footer**: Unsubscribe link + company info
+- **One-click**: Simple unsubscribe process
+- **Tracking**: Unsubscribe events logged
+
+## 🎨 UI/UX Requirements
+
+### Design Principles
+
+- **Scandinavian Minimalism**: Clean, simple, functional
+- **Mobile-First**: Responsive design for all devices
+- **Speed**: Fast loading, smooth interactions
+- **Accessibility**: WCAG 2.1 AA compliant
+
+### Color Palette
+
+- **Primary**: Blue (#2563eb) for trust/reliability
+- **Success**: Green (#16a34a) for money/success
+- **Text**: Dark gray (#1f2937) for readability
+- **Background**: Light gray (#f8fafc) for contrast
+
+### Key UI Components
+
+- **Landing Page**: Hero, features, pricing, how it works
+- **Dashboard**: Campaign overview, analytics, contact management
+- **Campaign Builder**: Step-by-step wizard with real-time preview
+- **Mobile Preview**: Accurate SMS/email rendering
+
+## 🔧 Integration Requirements
+
+### Twilio SMS
+
+- **Authentication**: Account SID + Auth Token (pay-as-you-go)
+- **Features**: Custom sender ID, delivery webhooks, country pricing
+- **Rate Limiting**: 1 SMS per second (basic account)
+- **Webhooks**: Delivery status tracking
+
+### Mailgun Email
+
+- **Authentication**: API Key + verified domain (mg.svejo.se)
+- **Features**: Email tracking, click tracking, delivery webhooks
+- **Rate Limiting**: 100 emails per second (paid plan)
+- **GDPR**: EU endpoint (api.eu.mailgun.net)
+
+### Stripe Payment
+
+- **Currency**: Swedish Krona (SEK)
+- **Features**: Payment intents, webhooks, refunds
+- **Security**: PCI compliant, webhook signature verification
+
+### Resend (Transactional)
+
+- **Purpose**: OTP codes, password reset emails
+- **Integration**: Already configured in starter kit
+- **Separation**: Keep separate from marketing emails
+
+## 📈 Success Metrics
+
+- **Page Load**: < 2 seconds
+- **SMS Delivery**: > 98%
+- **Email Delivery**: > 95%
+- **Payment Success**: > 99%
+- **GDPR Compliance**: 100%
+
+## 🚀 Launch Readiness
+
+- **Domain**: sendio.se configured
+- **Hosting**: Vercel deployment ready
+- **APIs**: Twilio, Mailgun, Stripe accounts configured
+- **Legal**: DPA and Privacy Policy prepared
+- **Design**: Complete UI/UX specifications ready
+
+# Sendio - Marketing Platform Project Overview
+
+## 🎯 Project Vision
+
+Sendio is a revolutionary SMS & email marketing platform with **NO monthly subscriptions**. Companies pay only when they send campaigns, providing complete cost transparency and control. Built specifically for the Scandinavian market with GDPR compliance at its core.
+
+## 🏗 Tech Stack
+
+### Frontend & Framework
+
+- **Vite + React 18** - Fast development and modern React features
+- **TypeScript** - Type safety throughout the application
+- **Tailwind CSS** - Utility-first styling
+- **shadcn/ui** - High-quality component library
+- **Lucide React** - Beautiful icons
+
+### Backend & Database
+
+- **Convex** - Real-time database with TypeScript
+- **Convex Auth** - Authentication system (from starter kit)
+- **Resend** - Transactional emails (OTP, password reset)
+- **Mailgun** - Marketing campaign emails with tracking
+- **Twilio** - SMS campaigns
+
+### Payment & Infrastructure
+
+- **Stripe** - Payment processing (Swedish Krona)
+- **Vercel** - Hosting and deployment
+- **Domain**: sendio.se (already purchased on Loopia)
+
+### Development Tools
+
+- **Vite** - Build tool and dev server
+- **ESLint + TypeScript** - Code quality
+- **PostCSS** - CSS processing
+
+## 💰 Pricing Strategy (2025 Market Research)
+
+### SMS Pricing (Twilio + 100% markup)
+
+- **Sweden (+46)**: $0.12 per SMS
+- **Denmark (+45)**: $0.11 per SMS
+- **Norway (+47)**: $0.13 per SMS
+- **Finland (+358)**: $0.17 per SMS
+- **Germany (+49)**: $0.22 per SMS
+
+### Email Pricing (Mailgun + 150% markup)
+
+- **All Countries**: $3.25 per 1,000 emails
+
+### Key Pricing Features
+
+- **Real-time cost calculation** as user creates campaign
+- **Transparent pricing** - no hidden fees
+- **Pay-per-campaign** - zero monthly subscriptions
+- **100% refund** if campaign fails to send
+
+## 🎯 Target Market
+
+- **Primary**: Small businesses in Scandinavia + Germany
+- **Focus**: Companies tired of monthly subscription marketing tools
+- **Size**: 1-10,000 contacts per campaign
+
+## 🔑 Unique Selling Propositions
+
+1. **No Monthly Subscriptions** - Pay only when you send
+2. **Instant Cost Calculation** - See exact costs before payment
+3. **GDPR Compliant by Design** - Built for Swedish/EU regulations
+4. **Simple & Fast** - Upload contacts → Create campaign → Pay → Send
+5. **Combined Campaigns** - SMS + Email in one payment
+
+## 🛠 Core Features
+
+### Contact Management
+
+- **File Import**: CSV, Excel with column mapping
+- **Required Fields**: Either phone OR email (both optional but at least one)
+- **Optional Fields**: firstName, lastName for personalization
+- **Import Behavior**: New import completely replaces old contact list
+- **Manual Management**: Add, edit, delete contacts individually
+- **Validation**: Real-time email/phone validation with error reporting
+
+### SMS Campaigns
+
+- **Message Composer**: Real-time character counter
+- **Mobile Preview**: See how SMS looks on phone
+- **Custom Sender ID**: Alphanumeric sender (11 chars max)
+- **Variables**: {first_name}, {last_name} replacement
+- **AVREG Compliance**: Mandatory "Avreg {link}" auto-appended (Swedish GDPR)
+- **Test SMS**: Free test to user's number (1 per campaign)
+- **Character Calculation**: User limit = Twilio max - AVREG length
+
+### Email Campaigns
+
+- **Drag & Drop Builder**: Text, image, button, divider, social elements
+- **Templates**: 3-4 pre-made templates with replaceable content
+- **Subject Line**: Variable support ({first_name}, {last_name})
+- **From Setup**: Send from noreply@svejo.se with custom from name
+- **Reply-To**: Custom reply-to email address
+- **Preview**: Desktop email preview before sending
+- **Mandatory Footer**: Auto-added unsubscribe link (GDPR compliance)
+- **Trackable Links**: Click tracking for analytics
+
+### Campaign Types
+
+1. **SMS Only** - Text message campaigns
+2. **Email Only** - Email marketing campaigns
+3. **Combined** - SMS + Email together with single payment
+
+### Scheduling System
+
+- **Send Options**: Immediately after payment OR schedule up to 30 days
+- **Timezone**: User's timezone for scheduling
+- **Granularity**: Hourly scheduling intervals
+- **Modification**: Edit/cancel scheduled campaigns
+
+### Payment System
+
+- **Real-time Pricing**: Cost updates as user builds campaign
+- **Stripe Integration**: Secure payment in Swedish Krona (SEK)
+- **Payment Flow**: Create campaign → See cost → Pay → Auto-send
+- **Cost Breakdown**: Detailed pricing by SMS country + email count
+
+### Analytics Dashboard
+
+- **Real-time Updates**: Live data from Twilio/Mailgun webhooks
+- **SMS Metrics**: Sent, delivered, failed, undelivered
+- **Email Metrics**: Sent, delivered, opened, clicked, bounced, unsubscribed
+- **Export**: Download analytics data
+- **Historical**: Permanent data retention
+
+## 📊 User Journey
+
+1. **Authentication** → Register/login using Convex Auth
+2. **Contact Import** → Upload CSV/Excel with validation
+3. **Campaign Creation** → Choose SMS, Email, or Both
+4. **Content Creation** → Compose message/email with variables
+5. **Preview & Pricing** → See exact cost breakdown
+6. **Payment** → Pay via Stripe (SEK)
+7. **Sending** → Immediate or scheduled delivery
+8. **Analytics** → Track real-time campaign performance
+
+## 🔒 GDPR Compliance (Swedish Market)
+
+### Legal Framework
+
+- **Sendio**: Data Processor (Personuppgiftsbiträde)
+- **Customers**: Data Controllers (Personuppgiftsansvariga)
+
+### Mandatory Features
+
+- **DPA Acceptance**: Required during registration
+- **Consent Confirmation**: Before every contact import
+- **Unsubscribe System**: One-click AVREG for SMS, footer links for email
+- **Right to Delete**: Permanent contact deletion
+- **Right to Access**: Contact data export
+- **Compliance Logging**: All GDPR actions tracked with timestamps
+
+### SMS GDPR Requirements
+
+- **Mandatory AVREG**: Every SMS ends with "Avreg {unique_link}"
+- **Auto-append**: User cannot remove unsubscribe link
+- **One-click**: Simple unsubscribe landing page
+
+### Email GDPR Requirements
+
+- **Mandatory Footer**: Unsubscribe link + company info
+- **One-click**: Simple unsubscribe process
+- **Tracking**: Unsubscribe events logged
+
+## 🎨 UI/UX Requirements
+
+### Design Principles
+
+- **Scandinavian Minimalism**: Clean, simple, functional
+- **Mobile-First**: Responsive design for all devices
+- **Speed**: Fast loading, smooth interactions
+- **Accessibility**: WCAG 2.1 AA compliant
+
+### Color Palette
+
+- **Primary**: Blue (#2563eb) for trust/reliability
+- **Success**: Green (#16a34a) for money/success
+- **Text**: Dark gray (#1f2937) for readability
+- **Background**: Light gray (#f8fafc) for contrast
+
+### Key UI Components
+
+- **Landing Page**: Hero, features, pricing, how it works
+- **Dashboard**: Campaign overview, analytics, contact management
+- **Campaign Builder**: Step-by-step wizard with real-time preview
+- **Mobile Preview**: Accurate SMS/email rendering
+
+## 🔧 Integration Requirements
+
+### Twilio SMS
+
+- **Authentication**: Account SID + Auth Token (pay-as-you-go)
+- **Features**: Custom sender ID, delivery webhooks, country pricing
+- **Rate Limiting**: 1 SMS per second (basic account)
+- **Webhooks**: Delivery status tracking
+
+### Mailgun Email
+
+- **Authentication**: API Key + verified domain (mg.svejo.se)
+- **Features**: Email tracking, click tracking, delivery webhooks
+- **Rate Limiting**: 100 emails per second (paid plan)
+- **GDPR**: EU endpoint (api.eu.mailgun.net)
+
+### Stripe Payment
+
+- **Currency**: Swedish Krona (SEK)
+- **Features**: Payment intents, webhooks, refunds
+- **Security**: PCI compliant, webhook signature verification
+
+### Resend (Transactional)
+
+- **Purpose**: OTP codes, password reset emails
+- **Integration**: Already configured in starter kit
+- **Separation**: Keep separate from marketing emails
+
+## 📈 Success Metrics
+
+- **Page Load**: < 2 seconds
+- **SMS Delivery**: > 98%
+- **Email Delivery**: > 95%
+- **Payment Success**: > 99%
+- **GDPR Compliance**: 100%
+
+## 🚀 Launch Readiness
+
+- **Domain**: sendio.se configured
+- **Hosting**: Vercel deployment ready
+- **APIs**: Twilio, Mailgun, Stripe accounts configured
+- **Legal**: DPA and Privacy Policy prepared
+- **Design**: Complete UI/UX specifications ready
