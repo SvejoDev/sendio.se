@@ -1,8 +1,8 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const validateEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,9 +16,21 @@ const validatePassword = (password: string) => {
 
 export default function SignIn() {
   const { signIn } = useAuthActions();
+  const params = useSearchParams();
   const [flow, setFlow] = useState<
     "signIn" | "signUp" | "forgot-password" | "reset-password"
   >("signIn");
+  useEffect(() => {
+    const q = params?.get("flow");
+    if (
+      q === "signUp" ||
+      q === "signIn" ||
+      q === "forgot-password" ||
+      q === "reset-password"
+    ) {
+      setFlow(q);
+    }
+  }, [params]);
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<{
     email?: string;
@@ -30,7 +42,7 @@ export default function SignIn() {
   const router = useRouter();
   return (
     <div className="flex flex-col gap-8 w-96 mx-auto h-screen justify-center items-center">
-      <p>Log in to see the numbers</p>
+      <p>Logga in för att fortsätta</p>
       <form
         className="flex flex-col gap-2"
         onSubmit={async (e) => {
@@ -40,26 +52,26 @@ export default function SignIn() {
           setIsSubmitting(true);
 
           const formData = new FormData(e.target as HTMLFormElement);
-          const email = formData.get("email") as string;
-          const password = formData.get("password") as string;
-          const code = formData.get("code") as string;
+          const email = (formData.get("email") as string) ?? "";
+          const password = (formData.get("password") as string) ?? "";
+          const code = (formData.get("code") as string) ?? "";
 
           const errors: { email?: string; password?: string; code?: string } =
             {};
 
           if (!validateEmail(email)) {
-            errors.email = "Please enter a valid email address";
+            errors.email = "Ange en giltig e‑postadress";
           }
 
           if (
             (flow === "signUp" || flow === "reset-password") &&
             !validatePassword(password)
           ) {
-            errors.password = "Password must be at least 8 characters long";
+            errors.password = "Lösenord måste vara minst 8 tecken";
           }
 
           if (flow === "reset-password" && !code) {
-            errors.code = "Please enter the verification code";
+            errors.code = "Ange verifieringskoden";
           }
 
           if (Object.keys(errors).length > 0) {
@@ -69,21 +81,24 @@ export default function SignIn() {
           }
 
           // Map our internal flow to the Password provider's expected flows
-          let providerFlow: string = flow;
-          if (flow === "forgot-password") {
-            providerFlow = "reset";
-          } else if (flow === "reset-password") {
-            providerFlow = "reset-verification";
-          }
+          const providerFlow =
+            flow === "forgot-password"
+              ? "reset"
+              : flow === "reset-password"
+                ? "reset-verification"
+                : flow;
 
-          formData.set("flow", providerFlow);
+          const params: Record<string, string> = { email, flow: providerFlow };
+          if (flow !== "forgot-password") {
+            params.password = password;
+          }
           if (flow === "reset-password") {
-            // The Password provider expects `newPassword` for the reset verification flow
-            formData.set("newPassword", password);
+            params.newPassword = password;
+            if (code) params.code = code;
           }
 
           try {
-            await signIn("password", formData);
+            await signIn("password", params);
 
             if (flow === "forgot-password") {
               setResetSuccess("Password reset code sent to your email!");
@@ -95,9 +110,11 @@ export default function SignIn() {
               // Only redirect on successful sign-in or sign-up
               router.push("/");
             }
-          } catch (error: any) {
-            console.error("Auth error:", error);
-            setError(error.message || "Authentication failed");
+          } catch (err) {
+            const message =
+              err instanceof Error ? err.message : "Authentication failed";
+            console.error("Auth error:", err);
+            setError(message);
             setResetSuccess(null);
           } finally {
             setIsSubmitting(false);
@@ -168,20 +185,20 @@ export default function SignIn() {
           disabled={isSubmitting}
         >
           {isSubmitting
-            ? "Loading..."
+            ? "Laddar..."
             : flow === "signIn"
-              ? "Sign in"
+              ? "Logga in"
               : flow === "signUp"
-                ? "Sign up"
+                ? "Skapa konto"
                 : flow === "forgot-password"
-                  ? "Send reset code"
-                  : "Reset password"}
+                  ? "Skicka återställningskod"
+                  : "Återställ lösenord"}
         </button>
 
         {flow === "signIn" && (
           <div className="flex flex-col gap-2">
             <div className="flex flex-row gap-2">
-              <span>Don't have an account?</span>
+              <span>Har du inget konto?</span>
               <span
                 className="text-foreground underline hover:no-underline cursor-pointer"
                 onClick={() => {
@@ -190,7 +207,7 @@ export default function SignIn() {
                   setResetSuccess(null);
                 }}
               >
-                Sign up instead
+                Skapa konto istället
               </span>
             </div>
             <span
@@ -201,14 +218,14 @@ export default function SignIn() {
                 setResetSuccess(null);
               }}
             >
-              Forgot your password?
+              Glömt ditt lösenord?
             </span>
           </div>
         )}
 
         {flow === "signUp" && (
           <div className="flex flex-row gap-2">
-            <span>Already have an account?</span>
+            <span>Har du redan ett konto?</span>
             <span
               className="text-foreground underline hover:no-underline cursor-pointer"
               onClick={() => {
@@ -217,14 +234,14 @@ export default function SignIn() {
                 setResetSuccess(null);
               }}
             >
-              Sign in instead
+              Logga in istället
             </span>
           </div>
         )}
 
         {(flow === "forgot-password" || flow === "reset-password") && (
           <div className="flex flex-row gap-2">
-            <span>Remember your password?</span>
+            <span>Kom du på ditt lösenord?</span>
             <span
               className="text-foreground underline hover:no-underline cursor-pointer"
               onClick={() => {
@@ -233,14 +250,14 @@ export default function SignIn() {
                 setResetSuccess(null);
               }}
             >
-              Back to sign in
+              Tillbaka till inloggning
             </span>
           </div>
         )}
         {error && (
           <div className="bg-red-500/20 border-2 border-red-500/50 rounded-md p-2">
             <p className="text-foreground font-mono text-xs">
-              Error signing in: {error}
+              Fel vid inloggning: {error}
             </p>
           </div>
         )}

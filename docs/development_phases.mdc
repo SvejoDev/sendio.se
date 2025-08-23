@@ -6,25 +6,25 @@ alwaysApply: true
 
 ## 📋 Phase 1: Foundation & Landing Page
 
-### Task 1.1: Landing Page Creation
+### Task 1.1: Landing Page Creation ✅
 
-**Files to create:**
+**Files skapade/uppdaterade:**
 
-- `src/pages/LandingPage.tsx` - Main landing page component
-- `src/components/landing/Hero.tsx` - Hero section with value proposition
-- `src/components/landing/Features.tsx` - Key features showcase
-- `src/components/landing/Pricing.tsx` - Transparent pricing display
-- `src/components/landing/HowItWorks.tsx` - Step-by-step process
-- `src/components/landing/Navigation.tsx` - Landing page navigation
+- `app/page.tsx` – Landningssida (Next App Router)
+- `components/landing/Hero.tsx` – Värdeerbjudande (svenska)
+- `components/landing/Features.tsx` – Funktioner
+- `components/landing/Pricing.tsx` – Transparent prissättning
+- `components/landing/HowItWorks.tsx` – Så fungerar det
+- `components/site/Navbar.tsx` – Navigering med auth
 
-**Requirements:**
+**Uppfyllt:**
 
-- Hero section with "Marketing Without Monthly Subscriptions" headline
-- Features grid showcasing no subscriptions, instant pricing, GDPR compliance
-- Pricing section with SMS/Email rates for all supported countries
-- How it works: 5 steps from upload to analytics
-- Clean, Scandinavian design with mobile-first approach
-- Call-to-action buttons leading to registration
+- Hero med budskapet "Marknadsföring utan månadsabonnemang"
+- Funktioner: inga abonnemang, direkt kostnad, GDPR, enkelt flöde
+- Priser: SMS (SE, DK, NO, FI, DE) och e‑post (per 1000)
+- Så fungerar det: 5 steg från registrering till analys
+- Skandinavisk minimalism, mobil‑först, Tailwind + shadcn/ui
+- Tydliga CTA: "Skapa företagskonto", "Logga in"
 
 **Design Specifications:**
 
@@ -34,31 +34,25 @@ alwaysApply: true
 - Professional typography (Inter font family)
 - Trust indicators (GDPR compliant, Swedish company)
 
-### Task 1.2: Authentication Integration
+### Task 1.2: Authentication Integration ✅
 
-**Files to modify:**
+**Filer uppdaterade:**
 
-- `src/App.tsx` - Route setup and auth state management
-- `src/Layout.tsx` - Navigation updates for authenticated users
-- `src/auth/SignInWithPassword.tsx` - Customize for Sendio branding
-- `src/components/UserMenu.tsx` - Add logout and profile options
+- `app/layout.tsx` – Navbar + svensk metadata, `lang="sv"`
+- `app/signin/page.tsx` – Lokaliserad till svenska, stöd för `?flow=`
 
-**Files to create:**
+**Skapade:**
 
-- `src/pages/Dashboard.tsx` - Main dashboard after login
-- `src/components/auth/RegisterForm.tsx` - Custom registration with company details
-- `src/components/navigation/AuthenticatedNav.tsx` - Navigation for logged-in users
+- `components/site/Navbar.tsx` – Navigering med auth‑åtgärder
 
-**Requirements:**
+**Uppfyllt:**
 
-- Landing page for non-authenticated users
-- Registration form with company name and GDPR consent
-- Dashboard redirect after successful login
-- User menu with logout option
-- Protect dashboard routes from non-authenticated access
-- Clean transition between landing page and dashboard
+- Landningssida för icke‑inloggade
+- CTA till befintligt auth‑flöde (registrera/inloggning)
+- Användarmeny/Logga ut via Navbar (shadcn Dropdown)
+- Lätt övergång mellan sidor
 
-### Task 1.3: Database Schema Extension
+### Task 1.3: Database Schema Extension (kvar)
 
 **Files to modify:**
 
@@ -106,7 +100,7 @@ campaigns: {
 - Include GDPR compliance fields (unsubscribed status)
 - Timestamp all records for audit trails
 
-### Task 1.4: GDPR Legal Pages
+### Task 1.4: GDPR Legal Pages (kvar)
 
 **Files to create:**
 
