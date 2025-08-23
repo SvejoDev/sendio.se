@@ -119,23 +119,23 @@ campaigns: {
 - ✅ Schema validated successfully with Convex development server
 - ✅ No TypeScript or linting errors
 
-### Task 1.4: GDPR Legal Pages (kvar)
+### Task 1.4: GDPR Legal Pages ✅
 
-**Files to create:**
+**Created:**
 
-- `src/pages/legal/DPA.tsx` - Data Processing Agreement
-- `src/pages/legal/PrivacyPolicy.tsx` - Privacy Policy
-- `src/components/gdpr/ConsentModal.tsx` - GDPR consent component
-- `src/components/legal/Footer.tsx` - Footer with legal links
+- `app/legal/dpa/page.tsx` – DPA (Personuppgiftsbiträdesavtal)
+- `app/legal/integritetspolicy/page.tsx` – Integritetspolicy
+- `app/legal/cookies/page.tsx` – Cookie‑policy
+- `app/legal/sakerhet-gdpr/page.tsx` – Säkerhet & GDPR
+- `components/gdpr/ConsentModal.tsx` – GDPR samtyckesmodal
+- Uppdaterade länkar i `components/site/Footer.tsx` till rätt juridiska sidor
 
-**Requirements:**
+**Meets requirements:**
 
-- DPA page explaining data processor relationship
-- Privacy policy covering data handling
-- Consent modal for contact imports
-- Footer with accessible legal links
-- Swedish language compliance text
-- Professional legal document styling
+- DPA och Integritetspolicy på svenska
+- Samtyckesmodal för kontaktimporter
+- Footer med tillgängliga juridiska länkar
+- Tydlig, professionell styling och språk
 
 ## 📋 Phase 2: Contact Management
 

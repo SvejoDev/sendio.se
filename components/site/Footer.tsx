@@ -70,7 +70,10 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-foreground/90">
+                <Link
+                  href="/legal/sakerhet-gdpr"
+                  className="hover:text-foreground/90"
+                >
                   Säkerhet & GDPR
                 </Link>
               </li>
@@ -88,17 +91,23 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/" className="hover:text-foreground/90">
+                <Link
+                  href="/legal/integritetspolicy"
+                  className="hover:text-foreground/90"
+                >
                   Integritetspolicy
                 </Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-foreground/90">
-                  Villkor
+                <Link
+                  href="/legal/cookies"
+                  className="hover:text-foreground/90"
+                >
+                  Cookies
                 </Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-foreground/90">
+                <Link href="/legal/dpa" className="hover:text-foreground/90">
                   Databehandlaravtal (DPA)
                 </Link>
               </li>
@@ -113,14 +122,17 @@ export default function Footer() {
             © {year} Sendio. Alla rättigheter förbehållna.
           </p>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <Link href="/" className="hover:text-foreground/90">
-              Integritet
+            <Link
+              href="/legal/integritetspolicy"
+              className="hover:text-foreground/90"
+            >
+              Integritetspolicy
             </Link>
-            <Link href="/" className="hover:text-foreground/90">
+            <Link href="/legal/cookies" className="hover:text-foreground/90">
               Cookies
             </Link>
-            <Link href="/" className="hover:text-foreground/90">
-              Status
+            <Link href="/legal/dpa" className="hover:text-foreground/90">
+              DPA
             </Link>
           </div>
         </div>
