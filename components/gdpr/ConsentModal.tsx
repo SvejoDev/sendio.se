@@ -27,7 +27,9 @@ export default function ConsentModal({
   const accept = () => {
     try {
       localStorage.setItem("gdpr_consent_seen", "1");
-    } catch (_) {}
+    } catch {
+      // ignore
+    }
     setOpen(false);
     onAccept?.();
   };

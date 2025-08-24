@@ -5,8 +5,8 @@ export default function Page() {
         Personuppgiftsbiträdesavtal (DPA)
       </h1>
       <p className="mt-4 text-muted-foreground">
-        Detta personuppgiftsbiträdesavtal ("Avtalet") reglerar hur Sendio
-        behandlar personuppgifter för kundens räkning i enlighet med
+        Detta personuppgiftsbiträdesavtal (&quot;Avtalet&quot;) reglerar hur
+        Sendio behandlar personuppgifter för kundens räkning i enlighet med
         dataskyddsförordningen (GDPR).
       </p>
       <section className="mt-8 space-y-4">
