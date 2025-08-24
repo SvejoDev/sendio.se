@@ -34,25 +34,61 @@ export const replaceImport = mutation({
         }
         if (!company) throw new Error("Company not found");
 
-        // Delete previous contacts
-        const toDelete = ctx.db
+        // Load existing contacts into memory, keyed by email
+        const existingContacts = await ctx.db
             .query("contacts")
-            .withIndex("by_company", (q) => q.eq("companyId", company._id));
-        for await (const row of toDelete) {
-            await ctx.db.delete(row._id);
+            .withIndex("by_company", (q) => q.eq("companyId", company._id))
+            .collect();
+
+        const existingContactsMap = new Map<string, any>();
+        for (const contact of existingContacts) {
+            if (contact.email) {
+                existingContactsMap.set(contact.email.toLowerCase(), contact);
+            }
         }
 
-        // Insert new contacts
+        // Create a set of incoming contact emails for efficient lookup
+        const incomingEmails = new Set<string>();
+        for (const contact of args.contacts) {
+            if (contact.email) {
+                incomingEmails.add(contact.email.toLowerCase());
+            }
+        }
+
+        // Delete contacts that are no longer in the incoming list
+        for (const contact of existingContacts) {
+            if (contact.email && !incomingEmails.has(contact.email.toLowerCase())) {
+                await ctx.db.delete(contact._id);
+            }
+        }
+
+        // Insert or update contacts from the incoming list
         for (const c of args.contacts) {
-            await ctx.db.insert("contacts", {
-                companyId: company._id,
-                firstName: c.firstName,
-                lastName: c.lastName,
-                email: c.email,
-                phoneNumber: c.phoneNumber,
-                unsubscribed: false,
-                createdAt: Date.now(),
-            });
+            if (!c.email) continue; // Skip contacts without email
+
+            const emailKey = c.email.toLowerCase();
+            const existingContact = existingContactsMap.get(emailKey);
+
+            if (existingContact) {
+                // Update existing contact, preserving unsubscribe status and createdAt
+                await ctx.db.patch(existingContact._id, {
+                    firstName: c.firstName,
+                    lastName: c.lastName,
+                    phoneNumber: c.phoneNumber,
+                    // Preserve existing unsubscribed status and createdAt
+                });
+            } else {
+                // Insert new contact
+                await ctx.db.insert("contacts", {
+                    companyId: company._id,
+                    firstName: c.firstName,
+                    lastName: c.lastName,
+                    email: c.email,
+                    phoneNumber: c.phoneNumber,
+                    unsubscribed: false,
+                    createdAt: Date.now(),
+                });
+            }
         }
 
         // Log GDPR import event

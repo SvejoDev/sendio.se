@@ -20,6 +20,18 @@ export default function ValidationResults({
     phone?: number;
   };
 }) {
+  // Guard against invalid sheet access
+  if (
+    !fileData ||
+    !fileData.sheets ||
+    !Array.isArray(fileData.sheets) ||
+    typeof fileData.activeSheetIndex !== "number" ||
+    fileData.activeSheetIndex < 0 ||
+    fileData.activeSheetIndex >= fileData.sheets.length
+  ) {
+    return null;
+  }
+
   const sheet = fileData.sheets[fileData.activeSheetIndex];
   const [submitting, setSubmitting] = useState(false);
   const importContacts = useMutation(api.contacts.replaceImport);

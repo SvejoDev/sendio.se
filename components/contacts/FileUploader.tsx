@@ -44,16 +44,31 @@ export default function FileUploader({
           const workbook = XLSX.read(arrayBuffer, { type: "array" });
           const parsed: Array<ParsedSheet> = workbook.SheetNames.map((name) => {
             const ws = workbook.Sheets[name];
-            const rows = XLSX.utils.sheet_to_json<Array<string>>(ws, {
+            const rawRows = XLSX.utils.sheet_to_json(ws, {
               header: 1,
               blankrows: false,
               defval: "",
-            }) as Array<Array<string>>;
+            }) as Array<Array<any>>;
+
+            // Normalize all cells to strings to ensure type safety
+            const rows: Array<Array<string>> = rawRows.map((row) =>
+              row.map((cell) => {
+                if (cell === null || cell === undefined) {
+                  return "";
+                }
+                return String(cell);
+              }),
+            );
+
             return { name, rows };
           });
           setSheets(parsed);
           setActiveSheetIndex(0);
-          // Do not auto-fire onParsed yet if multiple sheets; user should choose first
+          // If there's exactly one sheet, call onParsed immediately like CSV
+          if (parsed.length === 1) {
+            onParsed({ sheets: parsed, activeSheetIndex: 0 });
+          }
+          // Do not auto-fire onParsed if multiple sheets; user should choose first
         } else {
           throw new Error("Endast CSV eller Excel-filer stöds");
         }
