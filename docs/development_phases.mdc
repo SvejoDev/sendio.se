@@ -159,6 +159,18 @@ campaigns: {
 - Requirement: at least email OR phone for each contact
 - New import completely replaces existing contacts
 
+**Completed:**
+
+- ✅ Route protection: Only `/` public; all others require auth via `middleware.ts` ([Next.js server auth docs](https://labs.convex.dev/auth/authz/nextjs))
+- ✅ Import page at `app/contacts/import/page.tsx` with steps: Upload → Map → Validate
+- ✅ File upload supports CSV and Excel; multi‑sheet selection before parsing
+- ✅ Column mapping for `firstName`, `lastName`, `email`, `phone` with live preview and hover highlights
+- ✅ Validation: email regex, phone prefixes +46/+45/+47/+358/+49 using `libphonenumber-js`; require email OR phone
+- ✅ Error reporting list; shows counts. Duplicates allowed; full replace semantics
+- ✅ Convex mutation `contacts.replaceImport` replaces previous contacts for the authenticated user's company and logs GDPR `contact_import`
+- ✅ Shadcn styling alignment with existing UI components; no new base primitives required
+- ✅ Production build success (no lint/type errors)
+
 **Validation Rules:**
 
 - Email: Valid email format required
