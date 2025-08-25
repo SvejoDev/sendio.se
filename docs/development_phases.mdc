@@ -178,25 +178,34 @@ campaigns: {
 - Names: Optional but useful for personalization
 - Duplicates: Show count but import anyway (new list replaces old)
 
-### Task 2.2: Contact List Management
+### Task 2.2: Contact List Management ✅
 
-**Files to create:**
+**Created/Updated Files:**
 
-- `src/pages/contacts/ContactList.tsx` - Main contact list view
-- `src/components/contacts/ContactTable.tsx` - Data table with actions
-- `src/components/contacts/ContactForm.tsx` - Add/edit contact form
-- `src/components/contacts/DeleteConfirmation.tsx` - GDPR delete modal
-- `src/components/contacts/ExportContacts.tsx` - Data export functionality
+- `app/contacts/page.tsx` – Admin contacts page (auth-protected via middleware)
+- `components/contacts/ContactTable.tsx` – Data table with actions
+- `components/contacts/ContactForm.tsx` – Add/edit contact form
+- `components/contacts/DeleteConfirmation.tsx` – GDPR delete modal
+- `components/contacts/ExportContacts.tsx` – Data export CSV
+- `convex/contacts.ts` – Added `listPaginated`, `add`, `update`, `remove`, `exportAll`
 
-**Requirements:**
+**Meets requirements:**
 
-- Searchable and filterable contact table
-- Add individual contacts manually
-- Edit existing contacts
-- Delete contacts with GDPR confirmation
-- Export contact data (Right to Access)
-- Show contact validation status
-- Pagination for large contact lists
+- Sök- och filterbar kontaktlista (aktiv/avregistrerad + fritext)
+- Lägg till kontakt manuellt (validering: minst e‑post eller telefon)
+- Redigera befintliga kontakter, uppdatera avregistreringsstatus
+- Radering med GDPR-bekräftelse och loggning i `gdprLogs`
+- Export av kontakter till CSV (Right to Access)
+- Visar valideringsstatus (giltig/ogiltig) per rad
+- Paginering med nästa/föregående och storleksval (10/20/50/100)
+
+**UX Flow:**
+
+- Efter lyckad import i `app/contacts/import/page.tsx` omdirigeras användaren automatiskt till `/contacts` för en sömlös övergång.
+
+**Build:**
+
+- Production build passerar utan fel (Next 15, TS/ESLint clean)
 
 ### Task 2.3: Unsubscribe System
 

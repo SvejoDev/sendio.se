@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { validateContacts } from "@/lib/fileProcessing";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useRouter } from "next/navigation";
 
 type SheetData = { name: string; rows: Array<Array<string>> };
 
@@ -20,24 +21,26 @@ export default function ValidationResults({
     phone?: number;
   };
 }) {
-  // Guard against invalid sheet access
-  if (
+  const [submitting, setSubmitting] = useState(false);
+  const importContacts = useMutation(api.contacts.replaceImport);
+  const router = useRouter();
+
+  // Compute active sheet safely without early-returning before hooks
+  const sheet =
     !fileData ||
     !fileData.sheets ||
     !Array.isArray(fileData.sheets) ||
     typeof fileData.activeSheetIndex !== "number" ||
     fileData.activeSheetIndex < 0 ||
     fileData.activeSheetIndex >= fileData.sheets.length
-  ) {
-    return null;
-  }
-
-  const sheet = fileData.sheets[fileData.activeSheetIndex];
-  const [submitting, setSubmitting] = useState(false);
-  const importContacts = useMutation(api.contacts.replaceImport);
+      ? null
+      : fileData.sheets[fileData.activeSheetIndex];
 
   const { valid, invalid } = useMemo(
-    () => validateContacts(sheet.rows, mapping),
+    () =>
+      sheet
+        ? validateContacts(sheet.rows, mapping)
+        : { valid: [], invalid: [] },
     [sheet, mapping],
   );
 
@@ -50,7 +53,7 @@ export default function ValidationResults({
         </div>
       </div>
 
-      {invalid.length > 0 && (
+      {sheet && invalid.length > 0 && (
         <div className="border rounded p-3 max-h-64 overflow-auto">
           <ul className="list-disc pl-5 text-sm">
             {invalid.slice(0, 100).map((e, idx) => (
@@ -65,12 +68,13 @@ export default function ValidationResults({
 
       <div className="flex justify-end">
         <Button
-          disabled={valid.length === 0 || submitting}
+          disabled={!sheet || valid.length === 0 || submitting}
           onClick={async () => {
             try {
               setSubmitting(true);
               await importContacts({ contacts: valid });
               alert("Importen slutförd. Din kontaktlista har ersatts.");
+              router.push("/contacts");
             } catch (e) {
               console.error(e);
               alert("Importen misslyckades");

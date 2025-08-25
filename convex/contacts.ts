@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { Id } from "./_generated/dataModel";
+import { paginationOptsValidator } from "convex/server";
 
 export const replaceImport = mutation({
     args: {
@@ -135,6 +136,251 @@ export const list = query({
             email: r.email,
             phoneNumber: r.phoneNumber,
             unsubscribed: r.unsubscribed,
+        }));
+    },
+});
+
+
+// Paginated listing with basic filtering
+export const listPaginated = query({
+    args: {
+        paginationOpts: paginationOptsValidator,
+        unsubscribed: v.optional(v.union(v.literal("all"), v.literal("only"), v.literal("active"))),
+        search: v.optional(v.string()),
+    },
+    returns: v.object({
+        page: v.array(
+            v.object({
+                _id: v.id("contacts"),
+                _creationTime: v.number(),
+                firstName: v.optional(v.string()),
+                lastName: v.optional(v.string()),
+                email: v.optional(v.string()),
+                phoneNumber: v.optional(v.string()),
+                unsubscribed: v.boolean(),
+            }),
+        ),
+        isDone: v.boolean(),
+        continueCursor: v.union(v.string(), v.null()),
+    }),
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+        if (userId === null) throw new Error("Unauthorized");
+
+        const company = await ctx.db
+            .query("companies")
+            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"users">))
+            .unique();
+        if (!company) {
+            return { page: [], isDone: true, continueCursor: null };
+        }
+
+        const unsubscribedFilter = args.unsubscribed ?? "all";
+
+        let queryBuilder = ctx.db
+            .query("contacts")
+            .withIndex("by_company", (q) => q.eq("companyId", company._id))
+            .order("desc");
+
+        // Apply unsubscribed filter by switching to combined index when needed
+        if (unsubscribedFilter === "only" || unsubscribedFilter === "active") {
+            const flag = unsubscribedFilter === "only";
+            queryBuilder = ctx.db
+                .query("contacts")
+                .withIndex("by_company_and_unsubscribed", (q) =>
+                    q.eq("companyId", company._id).eq("unsubscribed", flag),
+                )
+                .order("desc");
+        }
+
+        const result = await queryBuilder.paginate(args.paginationOpts);
+
+        // Sanitize to exactly match the returns validator
+        const sanitizedPage = result.page.map((c) => ({
+            _id: c._id,
+            _creationTime: c._creationTime,
+            firstName: c.firstName,
+            lastName: c.lastName,
+            email: c.email,
+            phoneNumber: c.phoneNumber,
+            unsubscribed: c.unsubscribed,
+        }));
+
+        // Basic client-side style filtering for search on the current page only
+        if (args.search && args.search.trim().length > 0) {
+            const term = args.search.trim().toLowerCase();
+            const filtered = sanitizedPage.filter((c) => {
+                const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase();
+                return (
+                    (c.email?.toLowerCase().includes(term) ?? false) ||
+                    (c.phoneNumber?.toLowerCase().includes(term) ?? false) ||
+                    name.includes(term)
+                );
+            });
+            return { page: filtered, isDone: result.isDone, continueCursor: result.continueCursor };
+        }
+
+        return { page: sanitizedPage, isDone: result.isDone, continueCursor: result.continueCursor };
+    },
+});
+
+export const add = mutation({
+    args: {
+        firstName: v.optional(v.string()),
+        lastName: v.optional(v.string()),
+        email: v.optional(v.string()),
+        phoneNumber: v.optional(v.string()),
+    },
+    returns: v.id("contacts"),
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+        if (userId === null) throw new Error("Unauthorized");
+
+        if (!args.email && !args.phoneNumber) {
+            throw new Error("Minst e‑post eller telefon krävs");
+        }
+
+        let company = await ctx.db
+            .query("companies")
+            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"users">))
+            .unique();
+        if (!company) {
+            const id = await ctx.db.insert("companies", {
+                userId: userId as Id<"users">,
+                companyName: "Företag",
+                createdAt: Date.now(),
+            });
+            company = await ctx.db.get(id);
+        }
+        if (!company) throw new Error("Company not found");
+
+        const newId = await ctx.db.insert("contacts", {
+            companyId: company._id,
+            firstName: args.firstName,
+            lastName: args.lastName,
+            email: args.email,
+            phoneNumber: args.phoneNumber,
+            unsubscribed: false,
+            createdAt: Date.now(),
+        });
+
+        await ctx.db.insert("gdprLogs", {
+            companyId: company._id,
+            action: "contact_import", // closest log type for manual add in this phase
+            userId,
+            details: "Manual contact add",
+            createdAt: Date.now(),
+        });
+
+        return newId;
+    },
+});
+
+export const update = mutation({
+    args: {
+        contactId: v.id("contacts"),
+        firstName: v.optional(v.string()),
+        lastName: v.optional(v.string()),
+        email: v.optional(v.string()),
+        phoneNumber: v.optional(v.string()),
+        unsubscribed: v.optional(v.boolean()),
+    },
+    returns: v.null(),
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+        if (userId === null) throw new Error("Unauthorized");
+
+        const contact = await ctx.db.get(args.contactId);
+        if (!contact) throw new Error("Contact not found");
+
+        const company = await ctx.db
+            .query("companies")
+            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"users">))
+            .unique();
+        if (!company || contact.companyId !== company._id) throw new Error("Forbidden");
+
+        if (!args.email && !args.phoneNumber && (contact.email === undefined && contact.phoneNumber === undefined)) {
+            throw new Error("Minst e‑post eller telefon krävs");
+        }
+
+        await ctx.db.patch(args.contactId, {
+            firstName: args.firstName,
+            lastName: args.lastName,
+            email: args.email,
+            phoneNumber: args.phoneNumber,
+            unsubscribed: args.unsubscribed ?? contact.unsubscribed,
+        });
+
+        return null;
+    },
+});
+
+export const remove = mutation({
+    args: { contactId: v.id("contacts") },
+    returns: v.null(),
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+        if (userId === null) throw new Error("Unauthorized");
+
+        const contact = await ctx.db.get(args.contactId);
+        if (!contact) return null;
+
+        const company = await ctx.db
+            .query("companies")
+            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"users">))
+            .unique();
+        if (!company || contact.companyId !== company._id) throw new Error("Forbidden");
+
+        await ctx.db.delete(args.contactId);
+
+        await ctx.db.insert("gdprLogs", {
+            companyId: company._id,
+            action: "data_deletion",
+            userId,
+            contactId: args.contactId,
+            details: "Manual contact deletion",
+            createdAt: Date.now(),
+        });
+
+        return null;
+    },
+});
+
+export const exportAll = query({
+    args: {},
+    returns: v.array(
+        v.object({
+            firstName: v.optional(v.string()),
+            lastName: v.optional(v.string()),
+            email: v.optional(v.string()),
+            phoneNumber: v.optional(v.string()),
+            unsubscribed: v.boolean(),
+            createdAt: v.number(),
+        }),
+    ),
+    handler: async (ctx) => {
+        const userId = await getAuthUserId(ctx);
+        if (userId === null) throw new Error("Unauthorized");
+
+        const company = await ctx.db
+            .query("companies")
+            .withIndex("by_user", (q) => q.eq("userId", userId as Id<"users">))
+            .unique();
+        if (!company) return [];
+
+        const rows = await ctx.db
+            .query("contacts")
+            .withIndex("by_company", (q) => q.eq("companyId", company._id))
+            .order("asc")
+            .take(5000);
+
+        return rows.map((r) => ({
+            firstName: r.firstName,
+            lastName: r.lastName,
+            email: r.email,
+            phoneNumber: r.phoneNumber,
+            unsubscribed: r.unsubscribed,
+            createdAt: r.createdAt,
         }));
     },
 });
