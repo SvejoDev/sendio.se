@@ -141,7 +141,7 @@ export const list = query({
 });
 
 
-// Paginated listing with basic filtering
+// Paginated listing with server-side search filtering
 export const listPaginated = query({
     args: {
         paginationOpts: paginationOptsValidator,
@@ -176,7 +176,72 @@ export const listPaginated = query({
         }
 
         const unsubscribedFilter = args.unsubscribed ?? "all";
+        const searchTerm = args.search?.trim().toLowerCase();
 
+        // If search is provided, we need to fetch all contacts and filter server-side
+        // since we don't have a text search index
+        if (searchTerm && searchTerm.length > 0) {
+            let allContacts;
+
+            if (unsubscribedFilter === "only" || unsubscribedFilter === "active") {
+                const flag = unsubscribedFilter === "only";
+                allContacts = await ctx.db
+                    .query("contacts")
+                    .withIndex("by_company_and_unsubscribed", (q) =>
+                        q.eq("companyId", company._id).eq("unsubscribed", flag),
+                    )
+                    .order("desc")
+                    .collect();
+            } else {
+                allContacts = await ctx.db
+                    .query("contacts")
+                    .withIndex("by_company", (q) => q.eq("companyId", company._id))
+                    .order("desc")
+                    .collect();
+            }
+
+            // Apply search filter
+            const filteredContacts = allContacts.filter((c) => {
+                const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase();
+                return (
+                    (c.email?.toLowerCase().includes(searchTerm) ?? false) ||
+                    (c.phoneNumber?.toLowerCase().includes(searchTerm) ?? false) ||
+                    name.includes(searchTerm)
+                );
+            });
+
+            // Apply pagination manually
+            const { numItems, cursor } = args.paginationOpts;
+            let startIndex = 0;
+
+            if (cursor) {
+                // Find the index of the cursor in the filtered results
+                const cursorIndex = filteredContacts.findIndex(c => c._id === cursor);
+                if (cursorIndex !== -1) {
+                    startIndex = cursorIndex + 1;
+                }
+            }
+
+            const endIndex = startIndex + numItems;
+            const page = filteredContacts.slice(startIndex, endIndex);
+            const isDone = endIndex >= filteredContacts.length;
+            const continueCursor = isDone ? null : page[page.length - 1]?._id ?? null;
+
+            // Sanitize to exactly match the returns validator
+            const sanitizedPage = page.map((c) => ({
+                _id: c._id,
+                _creationTime: c._creationTime,
+                firstName: c.firstName,
+                lastName: c.lastName,
+                email: c.email,
+                phoneNumber: c.phoneNumber,
+                unsubscribed: c.unsubscribed,
+            }));
+
+            return { page: sanitizedPage, isDone, continueCursor };
+        }
+
+        // No search term - use normal pagination
         let queryBuilder = ctx.db
             .query("contacts")
             .withIndex("by_company", (q) => q.eq("companyId", company._id))
@@ -205,20 +270,6 @@ export const listPaginated = query({
             phoneNumber: c.phoneNumber,
             unsubscribed: c.unsubscribed,
         }));
-
-        // Basic client-side style filtering for search on the current page only
-        if (args.search && args.search.trim().length > 0) {
-            const term = args.search.trim().toLowerCase();
-            const filtered = sanitizedPage.filter((c) => {
-                const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase();
-                return (
-                    (c.email?.toLowerCase().includes(term) ?? false) ||
-                    (c.phoneNumber?.toLowerCase().includes(term) ?? false) ||
-                    name.includes(term)
-                );
-            });
-            return { page: filtered, isDone: result.isDone, continueCursor: result.continueCursor };
-        }
 
         return { page: sanitizedPage, isDone: result.isDone, continueCursor: result.continueCursor };
     },

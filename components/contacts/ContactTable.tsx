@@ -40,7 +40,7 @@ export default function ContactTable({
         <tbody>
           {contacts.length === 0 && (
             <tr>
-              <td colSpan={5} className="px-3 py-6 text-center text-muted">
+              <td colSpan={6} className="px-3 py-6 text-center text-muted">
                 Inga kontakter hittades.
               </td>
             </tr>
