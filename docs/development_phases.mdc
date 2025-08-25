@@ -242,12 +242,12 @@ campaigns: {
 
 **Files to create:**
 
-- `src/pages/campaigns/CreateSMS.tsx` - SMS campaign creation
-- `src/components/sms/MessageComposer.tsx` - SMS text input
-- `src/components/sms/PhonePreview.tsx` - Mobile phone mockup
-- `src/components/sms/CharacterCounter.tsx` - Real-time character counting
-- `src/components/sms/SenderIdInput.tsx` - Custom sender ID input
-- `src/components/campaigns/VariableInserter.tsx` - Variable insertion tool
+- `app/campaigns/sms/page.tsx` - SMS campaign creation (Next.js App Router)
+- `components/sms/MessageComposer.tsx` - SMS text input
+- `components/sms/PhonePreview.tsx` - Mobile phone mockup
+- `components/sms/CharacterCounter.tsx` - Real-time character counting
+- `components/sms/SenderIdInput.tsx` - Custom sender ID input
+- `components/campaigns/VariableInserter.tsx` - Variable insertion tool
 
 **Requirements:**
 
@@ -261,8 +261,23 @@ campaigns: {
 **Character Calculation:**
 
 - Twilio limit: 1600 characters
-- AVREG template: "\\n\\nAvreg https://sendio.se/unsubscribe/uuid"
-- User available: 1600 - AVREG length = ~1540 characters
+- Actual AVREG used in app: "\\n\\nAvreg https://sendio.se/u/{token}"
+  - Token is generated in `convex/unsubscribe.ts` by `generateShortToken()` which creates a base36 token of length 10 by default (collision-retried).
+  - Public route is implemented at `app/u/[token]/page.tsx`, so the path is `/u/{token}`.
+- Therefore AVREG length = len("\\n\\nAvreg ") + len("https://sendio.se/u/") + tokenLength
+- With tokenLength = 10, available user characters = 1600 - (prefix + full URL) = 1600 - (8 + 24 + 10) = 1558
+- The UI uses this exact calculation for preview and counter.
+
+**Completed:**
+
+- ✅ Installed shadcn/ui `textarea`
+- ✅ Implemented components: `MessageComposer`, `CharacterCounter`, `PhonePreview`, `SenderIdInput`, `VariableInserter`
+- ✅ Created page `app/campaigns/sms/page.tsx`
+- ✅ Real-time character counter that reserves exact AVREG length for `/u/{token}`
+- ✅ Mobile phone preview shows the full SMS including AVREG link
+- ✅ Variable insertion for `{first_name}` and `{last_name}`
+- ✅ Sender ID validation (1–11 alphanumeric)
+- ✅ Production build passes with no errors
 
 ### Task 3.2: SMS Cost Calculation
 
