@@ -44,20 +44,15 @@ export default function FileUploader({
           const workbook = XLSX.read(arrayBuffer, { type: "array" });
           const parsed: Array<ParsedSheet> = workbook.SheetNames.map((name) => {
             const ws = workbook.Sheets[name];
-            const rawRows = XLSX.utils.sheet_to_json(ws, {
+            const rawRows = XLSX.utils.sheet_to_json<unknown[]>(ws, {
               header: 1,
               blankrows: false,
               defval: "",
-            }) as Array<Array<any>>;
+            }) as Array<Array<string | number | boolean | null>>;
 
             // Normalize all cells to strings to ensure type safety
             const rows: Array<Array<string>> = rawRows.map((row) =>
-              row.map((cell) => {
-                if (cell === null || cell === undefined) {
-                  return "";
-                }
-                return String(cell);
-              }),
+              row.map((cell) => (cell === null ? "" : String(cell))),
             );
 
             return { name, rows };
