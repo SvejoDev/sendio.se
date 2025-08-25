@@ -41,6 +41,8 @@ export default function ContactsPage() {
     lastName?: string;
     email?: string;
     phoneNumber?: string;
+    unsubscribedSms?: boolean;
+    unsubscribedEmail?: boolean;
     unsubscribed: boolean;
   } | null>(null);
 
@@ -118,6 +120,8 @@ export default function ContactsPage() {
               lastName: c.lastName,
               email: c.email,
               phoneNumber: c.phoneNumber,
+              unsubscribedSms: c.unsubscribedSms,
+              unsubscribedEmail: c.unsubscribedEmail,
               unsubscribed: c.unsubscribed,
             }))}
             onEdit={(c) => {

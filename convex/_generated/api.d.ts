@@ -18,6 +18,7 @@ import type * as auth from "../auth.js";
 import type * as contacts from "../contacts.js";
 import type * as http from "../http.js";
 import type * as myFunctions from "../myFunctions.js";
+import type * as unsubscribe from "../unsubscribe.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   contacts: typeof contacts;
   http: typeof http;
   myFunctions: typeof myFunctions;
+  unsubscribe: typeof unsubscribe;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

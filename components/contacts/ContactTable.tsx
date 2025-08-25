@@ -10,6 +10,8 @@ export type ContactRow = {
   lastName?: string;
   email?: string;
   phoneNumber?: string;
+  unsubscribedSms?: boolean;
+  unsubscribedEmail?: boolean;
   unsubscribed: boolean;
 };
 
@@ -33,7 +35,8 @@ export default function ContactTable({
             <th className="text-left px-3 py-2 whitespace-nowrap">
               Validering
             </th>
-            <th className="text-left px-3 py-2 whitespace-nowrap">Status</th>
+            <th className="text-left px-3 py-2 whitespace-nowrap">SMS</th>
+            <th className="text-left px-3 py-2 whitespace-nowrap">E‑post</th>
             <th className="text-right px-3 py-2 whitespace-nowrap">Åtgärder</th>
           </tr>
         </thead>
@@ -64,8 +67,15 @@ export default function ContactTable({
                   )}
                 </td>
                 <td className="px-3 py-2 whitespace-nowrap">
-                  {c.unsubscribed ? (
-                    <Badge variant="destructive">Avregistrerad</Badge>
+                  {c.unsubscribedSms ? (
+                    <Badge variant="destructive">Avreg</Badge>
+                  ) : (
+                    <Badge variant="secondary">Aktiv</Badge>
+                  )}
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  {c.unsubscribedEmail ? (
+                    <Badge variant="destructive">Avreg</Badge>
                   ) : (
                     <Badge variant="secondary">Aktiv</Badge>
                   )}

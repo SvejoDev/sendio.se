@@ -26,6 +26,9 @@ export default defineSchema({
     lastName: v.optional(v.string()),
     email: v.optional(v.string()),
     phoneNumber: v.optional(v.string()),
+    // New granular unsubscribe flags
+    unsubscribedSms: v.optional(v.boolean()),
+    unsubscribedEmail: v.optional(v.boolean()),
     unsubscribed: v.boolean(),
     createdAt: v.number(),
   })
