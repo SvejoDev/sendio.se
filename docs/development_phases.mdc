@@ -260,23 +260,20 @@ campaigns: {
 
 **Character Calculation:**
 
-- Twilio limit: 1600 characters
-- Actual AVREG used in app: "\\n\\nAvreg https://sendio.se/u/{token}"
-  - Token is generated in `convex/unsubscribe.ts` by `generateShortToken()` which creates a base36 token of length 10 by default (collision-retried).
-  - Public route is implemented at `app/u/[token]/page.tsx`, so the path is `/u/{token}`.
-- Therefore AVREG length = len("\\n\\nAvreg ") + len("https://sendio.se/u/") + tokenLength
-- With tokenLength = 10, available user characters = 1600 - (prefix + full URL) = 1600 - (8 + 24 + 10) = 1558
-- The UI uses this exact calculation for preview and counter.
+- We follow Twilio's segment rules: GSM‑7 160 chars (concatenated 153), UCS‑2 70 chars (concatenated 67). See [Twilio SMS character limit](https://www.twilio.com/docs/glossary/what-sms-character-limit).
+- Actual AVREG auto‑appended: "\\n\\nAvreg https://sendio.se/u/{token}" where `token` is 10 chars by default (see `convex/unsubscribe.ts`). Route: `app/u/[token]/page.tsx`.
+- The UI builds the final text including AVREG, detects encoding (GSM‑7 vs UCS‑2), and shows accurate segments, chars, and remaining in current segment.
 
 **Completed:**
 
 - ✅ Installed shadcn/ui `textarea`
 - ✅ Implemented components: `MessageComposer`, `CharacterCounter`, `PhonePreview`, `SenderIdInput`, `VariableInserter`
 - ✅ Created page `app/campaigns/sms/page.tsx`
-- ✅ Real-time character counter that reserves exact AVREG length for `/u/{token}`
-- ✅ Mobile phone preview shows the full SMS including AVREG link
+- ✅ Twilio‑accurate character counter (GSM‑7/UCS‑2 with 160/153 and 70/67) including AVREG `/u/{token}`
+- ✅ iPhone‑style light mode phone preview (dynamic island, header with Sender ID)
 - ✅ Variable insertion for `{first_name}` and `{last_name}`
 - ✅ Sender ID validation (1–11 alphanumeric)
+- ✅ Emoji picker for fast insertion
 - ✅ Production build passes with no errors
 
 ### Task 3.2: SMS Cost Calculation

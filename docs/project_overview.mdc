@@ -87,12 +87,13 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 ### SMS Campaigns
 
 - **Message Composer**: Real-time character counter
-- **Mobile Preview**: See how SMS looks on phone
+- **Mobile Preview**: iPhone-like light preview with Sender ID
 - **Custom Sender ID**: Alphanumeric sender (11 chars max)
 - **Variables**: {first_name}, {last_name} replacement
 - **AVREG Compliance**: Mandatory "Avreg {link}" auto-appended (Swedish GDPR)
 - **Test SMS**: Free test to user's number (1 per campaign)
-- **Character Calculation**: User limit = Twilio max - AVREG length
+- **Character Calculation**: Twilio-accurate segments (GSM-7 160/153, UCS-2 70/67) including auto-appended AVREG `/u/{token}`
+- **Emoji Support**: Quick insert of common emojis
 
 ### Email Campaigns
 
