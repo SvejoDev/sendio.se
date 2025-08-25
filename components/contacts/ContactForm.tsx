@@ -22,6 +22,8 @@ export default function ContactForm({
     lastName?: string;
     email?: string;
     phoneNumber?: string;
+    unsubscribedSms?: boolean;
+    unsubscribedEmail?: boolean;
     unsubscribed: boolean;
   };
 }) {
@@ -32,7 +34,8 @@ export default function ContactForm({
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [unsubscribed, setUnsubscribed] = useState(false);
+  const [unsubscribedSms, setUnsubscribedSms] = useState(false);
+  const [unsubscribedEmail, setUnsubscribedEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -41,7 +44,8 @@ export default function ContactForm({
       setLastName(initial?.lastName ?? "");
       setEmail(initial?.email ?? "");
       setPhoneNumber(initial?.phoneNumber ?? "");
-      setUnsubscribed(initial?.unsubscribed ?? false);
+      setUnsubscribedSms(initial?.unsubscribedSms ?? false);
+      setUnsubscribedEmail(initial?.unsubscribedEmail ?? false);
     }
   }, [open, initial]);
 
@@ -86,15 +90,26 @@ export default function ContactForm({
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                className="w-4 h-4"
-                checked={unsubscribed}
-                onChange={(e) => setUnsubscribed(e.target.checked)}
-              />
-              Avregistrerad
-            </label>
+            <div className="flex items-center gap-4 text-sm">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4"
+                  checked={unsubscribedSms}
+                  onChange={(e) => setUnsubscribedSms(e.target.checked)}
+                />
+                SMS avreg.
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4"
+                  checked={unsubscribedEmail}
+                  onChange={(e) => setUnsubscribedEmail(e.target.checked)}
+                />
+                E‑post avreg.
+              </label>
+            </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={onClose} disabled={submitting}>
                 Avbryt
@@ -110,7 +125,8 @@ export default function ContactForm({
                         lastName: lastName || undefined,
                         email: email || undefined,
                         phoneNumber: phoneNumber || undefined,
-                        unsubscribed,
+                        unsubscribedSms,
+                        unsubscribedEmail,
                       });
                     } else {
                       await add({
@@ -118,7 +134,8 @@ export default function ContactForm({
                         lastName: lastName || undefined,
                         email: email || undefined,
                         phoneNumber: phoneNumber || undefined,
-                        unsubscribed,
+                        unsubscribedSms,
+                        unsubscribedEmail,
                       });
                     }
                     onClose();

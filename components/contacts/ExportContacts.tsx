@@ -14,12 +14,14 @@ export default function ExportContacts() {
       "lastName",
       "email",
       "phoneNumber",
+      "unsubscribedSms",
+      "unsubscribedEmail",
       "unsubscribed",
       "createdAt",
     ];
 
     // Helper function to safely format cell values
-    const formatCell = (value: any): string => {
+    const formatCell = (value: unknown): string => {
       const stringValue = String(value);
 
       // Mitigate CSV injection by prefixing dangerous characters
@@ -46,6 +48,8 @@ export default function ExportContacts() {
         formatCell(r.lastName ?? ""),
         formatCell(r.email ?? ""),
         formatCell(r.phoneNumber ?? ""),
+        formatCell(r.unsubscribedSms ? "true" : "false"),
+        formatCell(r.unsubscribedEmail ? "true" : "false"),
         formatCell(r.unsubscribed ? "true" : "false"),
         formatDate(r.createdAt),
       ].join(","),

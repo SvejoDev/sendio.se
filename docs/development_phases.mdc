@@ -207,23 +207,34 @@ campaigns: {
 
 - Production build passerar utan fel (Next 15, TS/ESLint clean)
 
-### Task 2.3: Unsubscribe System
+### Task 2.3: Unsubscribe System ✅
 
-**Files to create:**
+**Created/Updated Files:**
 
-- `src/pages/unsubscribe/[token].tsx` - One-click unsubscribe page
-- `src/lib/unsubscribe.ts` - Token generation and validation
-- `convex/unsubscribe.ts` - Unsubscribe operations
-- `src/components/unsubscribe/UnsubscribeForm.tsx` - Simple unsubscribe interface
+- `app/u/[token]/page.tsx` – GDPR‑friendly unsubscribe page (SMS, e‑post, båda)
+- `convex/unsubscribe.ts` – Token generering, validering och avregistrering
+- `convex/schema.ts` – Lagt till `unsubscribedSms`, `unsubscribedEmail` + behåller `unsubscribed`
+- `convex/http.ts` – Publik endpoint `/api/unsubscribe/resolve` (hjälp/diagnostik)
+- `components/ui/checkbox.tsx` – shadcn Checkbox
+- `components/contacts/ContactTable.tsx` – Visar SMS/E‑post avreg separat
+- `components/contacts/ContactForm.tsx` – Redigera SMS/E‑post avreg
+- `components/contacts/ExportContacts.tsx` – Exporterar SMS/E‑post avreg
+- `app/contacts/page.tsx` – Passerar nya fält till tabellen
 
-**Requirements:**
+**Meets requirements:**
 
 - Generate unique tokens for each campaign/contact
 - One-click unsubscribe (no login required)
-- Update contact unsubscribed status
-- Preserve unsubscribe status across imports
-- Simple confirmation page
-- Log unsubscribe events for compliance
+- Update contact unsubscribed status, channel‑specifik (SMS/E‑post separat)
+- Preserve unsubscribe status across imports (fält sparas på kontakten)
+- Simple confirmation page with clear choices
+- Log unsubscribe events for compliance (`gdprLogs`)
+
+**Notes:**
+
+- Kort länk: använd `/u/{token}` i SMS och e‑postfoten för att minimera tecken
+- `contacts.unsubscribed` bibehålls för bakåtkompatibilitet och sätts till `true` om någon kanal avreggas
+- Filtren i listor fortsätter att fungera via `unsubscribed`
 
 ## 📋 Phase 3: SMS Campaign Builder
 

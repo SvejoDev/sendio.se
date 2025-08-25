@@ -112,6 +112,8 @@ export const list = query({
             lastName: v.optional(v.string()),
             email: v.optional(v.string()),
             phoneNumber: v.optional(v.string()),
+            unsubscribedSms: v.optional(v.boolean()),
+            unsubscribedEmail: v.optional(v.boolean()),
             unsubscribed: v.boolean(),
         })
     ),
@@ -135,6 +137,8 @@ export const list = query({
             lastName: r.lastName,
             email: r.email,
             phoneNumber: r.phoneNumber,
+            unsubscribedSms: r.unsubscribedSms,
+            unsubscribedEmail: r.unsubscribedEmail,
             unsubscribed: r.unsubscribed,
         }));
     },
@@ -157,6 +161,8 @@ export const listPaginated = query({
                 lastName: v.optional(v.string()),
                 email: v.optional(v.string()),
                 phoneNumber: v.optional(v.string()),
+                unsubscribedSms: v.optional(v.boolean()),
+                unsubscribedEmail: v.optional(v.boolean()),
                 unsubscribed: v.boolean(),
             }),
         ),
@@ -235,6 +241,8 @@ export const listPaginated = query({
                 lastName: c.lastName,
                 email: c.email,
                 phoneNumber: c.phoneNumber,
+                unsubscribedSms: c.unsubscribedSms,
+                unsubscribedEmail: c.unsubscribedEmail,
                 unsubscribed: c.unsubscribed,
             }));
 
@@ -268,6 +276,8 @@ export const listPaginated = query({
             lastName: c.lastName,
             email: c.email,
             phoneNumber: c.phoneNumber,
+            unsubscribedSms: c.unsubscribedSms,
+            unsubscribedEmail: c.unsubscribedEmail,
             unsubscribed: c.unsubscribed,
         }));
 
@@ -281,7 +291,8 @@ export const add = mutation({
         lastName: v.optional(v.string()),
         email: v.optional(v.string()),
         phoneNumber: v.optional(v.string()),
-        unsubscribed: v.optional(v.boolean()),
+        unsubscribedSms: v.optional(v.boolean()),
+        unsubscribedEmail: v.optional(v.boolean()),
     },
     returns: v.id("contacts"),
     handler: async (ctx, args) => {
@@ -306,13 +317,17 @@ export const add = mutation({
         }
         if (!company) throw new Error("Company not found");
 
+        const unsubSms = args.unsubscribedSms ?? false;
+        const unsubEmail = args.unsubscribedEmail ?? false;
         const newId = await ctx.db.insert("contacts", {
             companyId: company._id,
             firstName: args.firstName,
             lastName: args.lastName,
             email: args.email,
             phoneNumber: args.phoneNumber,
-            unsubscribed: args.unsubscribed ?? false,
+            unsubscribedSms: unsubSms,
+            unsubscribedEmail: unsubEmail,
+            unsubscribed: unsubSms || unsubEmail,
             createdAt: Date.now(),
         });
 
@@ -335,7 +350,8 @@ export const update = mutation({
         lastName: v.optional(v.string()),
         email: v.optional(v.string()),
         phoneNumber: v.optional(v.string()),
-        unsubscribed: v.optional(v.boolean()),
+        unsubscribedSms: v.optional(v.boolean()),
+        unsubscribedEmail: v.optional(v.boolean()),
     },
     returns: v.null(),
     handler: async (ctx, args) => {
@@ -355,12 +371,16 @@ export const update = mutation({
             throw new Error("Minst e‑post eller telefon krävs");
         }
 
+        const nextSms = args.unsubscribedSms ?? contact.unsubscribedSms ?? false;
+        const nextEmail = args.unsubscribedEmail ?? contact.unsubscribedEmail ?? false;
         await ctx.db.patch(args.contactId, {
             firstName: args.firstName,
             lastName: args.lastName,
             email: args.email,
             phoneNumber: args.phoneNumber,
-            unsubscribed: args.unsubscribed ?? contact.unsubscribed,
+            unsubscribedSms: nextSms,
+            unsubscribedEmail: nextEmail,
+            unsubscribed: nextSms || nextEmail,
         });
 
         return null;
@@ -406,6 +426,8 @@ export const exportAll = query({
             lastName: v.optional(v.string()),
             email: v.optional(v.string()),
             phoneNumber: v.optional(v.string()),
+            unsubscribedSms: v.optional(v.boolean()),
+            unsubscribedEmail: v.optional(v.boolean()),
             unsubscribed: v.boolean(),
             createdAt: v.number(),
         }),
@@ -431,6 +453,8 @@ export const exportAll = query({
             lastName: r.lastName,
             email: r.email,
             phoneNumber: r.phoneNumber,
+            unsubscribedSms: r.unsubscribedSms,
+            unsubscribedEmail: r.unsubscribedEmail,
             unsubscribed: r.unsubscribed,
             createdAt: r.createdAt,
         }));
