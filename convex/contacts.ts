@@ -230,6 +230,7 @@ export const add = mutation({
         lastName: v.optional(v.string()),
         email: v.optional(v.string()),
         phoneNumber: v.optional(v.string()),
+        unsubscribed: v.optional(v.boolean()),
     },
     returns: v.id("contacts"),
     handler: async (ctx, args) => {
@@ -260,7 +261,7 @@ export const add = mutation({
             lastName: args.lastName,
             email: args.email,
             phoneNumber: args.phoneNumber,
-            unsubscribed: false,
+            unsubscribed: args.unsubscribed ?? false,
             createdAt: Date.now(),
         });
 

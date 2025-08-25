@@ -118,6 +118,7 @@ export default function ContactForm({
                         lastName: lastName || undefined,
                         email: email || undefined,
                         phoneNumber: phoneNumber || undefined,
+                        unsubscribed,
                       });
                     }
                     onClose();
