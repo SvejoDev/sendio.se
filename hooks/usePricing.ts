@@ -44,14 +44,21 @@ export function usePricing(contacts: Array<PricingInputContact>, segmentsPerMess
         const breakdown: Array<CountryBreakdown> = [];
         let total = 0;
         let recipients = 0;
+
+        // Ensure segments is a finite integer defaulting to 1
+        const segments = Number.isFinite(segmentsPerMessage) ? Math.max(1, Math.floor(segmentsPerMessage)) : 1;
+
         for (const cc of Object.keys(map) as Array<SupportedCountry>) {
             const row = map[cc];
             if (row.count === 0) continue;
-            const subtotal = row.count * row.unitPriceSek * Math.max(1, segmentsPerMessage);
+            const subtotal = row.count * row.unitPriceSek * segments;
             row.subtotalSek = subtotal;
             breakdown.push(row);
-            total += subtotal;
-            recipients += row.count;
+            // Only add finite subtotals to ensure numeric values
+            if (Number.isFinite(subtotal)) {
+                total += subtotal;
+                recipients += row.count;
+            }
         }
 
         breakdown.sort((a, b) => a.countryName.localeCompare(b.countryName));

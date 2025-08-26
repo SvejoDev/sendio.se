@@ -18,12 +18,26 @@ export const SMS_PRICING_SEK: Record<SupportedCountry, { country: string; prefix
 
 export function detectCountryFromPhone(phone?: string): SupportedCountry | null {
   if (!phone) return null;
-  const normalized = phone.replace(/\s|-/g, "");
-  if (normalized.startsWith(SMS_PRICING_SEK.FI.prefix)) return "FI";
-  if (normalized.startsWith(SMS_PRICING_SEK.SE.prefix)) return "SE";
-  if (normalized.startsWith(SMS_PRICING_SEK.DK.prefix)) return "DK";
-  if (normalized.startsWith(SMS_PRICING_SEK.NO.prefix)) return "NO";
-  if (normalized.startsWith(SMS_PRICING_SEK.DE.prefix)) return "DE";
+
+  // Normalize the input: remove spaces/hyphens, ensure leading '+'
+  let normalized = phone.replace(/\s|-/g, "");
+  if (!normalized.startsWith("+")) {
+    normalized = "+" + normalized;
+  }
+
+  // Sort prefixes by length (descending) to avoid partial matches
+  const prefixes = Object.entries(SMS_PRICING_SEK)
+    .map(([country, data]) => ({ country: country as SupportedCountry, prefix: data.prefix }))
+    .sort((a, b) => b.prefix.length - a.prefix.length);
+
+  // Test each prefix with regex validation
+  for (const { country, prefix } of prefixes) {
+    const regex = new RegExp(`^\\${prefix}\\d+$`);
+    if (regex.test(normalized)) {
+      return country;
+    }
+  }
+
   return null;
 }
 
