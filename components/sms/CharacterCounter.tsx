@@ -209,3 +209,14 @@ export function CharacterCounter({
 export function buildSmsPreview(message: string, token: string) {
   return `${message}${AVREG_PREFIX}https://sendio.se${AVREG_PATH}${token}`;
 }
+
+export function computeSegmentsForMessage(
+  message: string,
+  tokenLength = 10,
+): number {
+  const fullLink = `https://sendio.se${AVREG_PATH}${"x".repeat(tokenLength)}`;
+  const full = `${message}${AVREG_PREFIX}${fullLink}`;
+  const { encoding, length } = getEncodingAndLength(full);
+  const seg = computeSegments(encoding, length);
+  return seg.segments;
+}

@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   CharacterCounter,
   buildSmsPreview,
+  computeSegmentsForMessage,
 } from "@/components/sms/CharacterCounter";
 import { VariableInserter } from "@/components/campaigns/VariableInserter";
 import { PhonePreview } from "@/components/sms/PhonePreview";
@@ -13,13 +14,17 @@ import { Button } from "@/components/ui/button";
 
 type MessageComposerProps = {
   initialText?: string;
+  onChangeText?: (text: string, segments: number) => void;
 };
 
 function generatePlaceholderToken(length = 10) {
   return "x".repeat(length);
 }
 
-export function MessageComposer({ initialText = "" }: MessageComposerProps) {
+export function MessageComposer({
+  initialText = "",
+  onChangeText,
+}: MessageComposerProps) {
   const [text, setText] = useState(initialText);
   const [token] = useState(generatePlaceholderToken());
   const [sender, setSender] = useState("");
@@ -36,7 +41,12 @@ export function MessageComposer({ initialText = "" }: MessageComposerProps) {
         <label className="text-sm font-medium">Meddelande</label>
         <Textarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            const next = e.target.value;
+            setText(next);
+            const segments = computeSegmentsForMessage(next);
+            onChangeText?.(next, segments);
+          }}
           placeholder={"Hej {first_name}, missa inte vårt erbjudande!"}
           rows={10}
         />

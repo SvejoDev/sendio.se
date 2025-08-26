@@ -276,31 +276,37 @@ campaigns: {
 - ✅ Emoji picker for fast insertion
 - ✅ Production build passes with no errors
 
-### Task 3.2: SMS Cost Calculation
+### Task 3.2: SMS Cost Calculation ✅
 
-**Files to create:**
+**Files created/updated:**
 
-- `src/lib/pricing.ts` - Pricing calculation logic
-- `src/components/campaigns/CostBreakdown.tsx` - Cost display
-- `src/hooks/usePricing.ts` - Real-time pricing calculations
-- `src/lib/countryDetection.ts` - Phone number country detection
+- `components/campaigns/CostBreakdown.tsx` - Cost display using shadcn Table (SEK)
+- `hooks/usePricing.ts` - Real-time pricing calculations (SEK)
+- `lib/utils.ts` - Added `SMS_PRICING_SEK`, `detectCountryFromPhone`, `formatSek`
+- `components/sms/CharacterCounter.tsx` - Exported `computeSegmentsForMessage`
+- `components/sms/MessageComposer.tsx` - Emits `onChangeText` with segment count
+- `app/campaigns/sms/page.tsx` - Integrated pricing breakdown with Convex contacts
 
 **Requirements:**
 
-- Detect country from phone number prefix
-- Calculate cost per SMS by country
-- Real-time cost updates as user types or selects contacts
-- Display total cost and per-SMS breakdown
-- Handle multiple countries in contact list
-- Show cost in Swedish Krona (SEK)
+- Detect country from phone number prefix – Implemented via `detectCountryFromPhone`
+- Calculate cost per SMS by country – Implemented in `usePricing` with `SMS_PRICING_SEK`
+- Real-time cost updates as user types or selects contacts – Hook recomputes on segments/text
+- Display total cost and per-SMS breakdown – `CostBreakdown` table
+- Handle multiple countries in contact list – Aggregated breakdown
+- Show cost in Swedish Krona (SEK) – Formatted via `formatSek` and SEK prices
 
-**Pricing Structure:**
+**Pricing Structure (SEK internal mapping):**
 
-- Sweden (+46): $0.12 per SMS
-- Denmark (+45): $0.11 per SMS
-- Norway (+47): $0.13 per SMS
-- Finland (+358): $0.17 per SMS
-- Germany (+49): $0.22 per SMS
+- Sweden (+46): 1.25 SEK per SMS
+- Denmark (+45): 1.15 SEK per SMS
+- Norway (+47): 1.35 SEK per SMS
+- Finland (+358): 1.75 SEK per SMS
+- Germany (+49): 2.25 SEK per SMS
+
+**Build:**
+
+- ✅ `npm run build` passes with no TypeScript or lint errors
 
 ### Task 3.3: SMS Testing
 
