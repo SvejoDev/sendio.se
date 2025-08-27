@@ -65,10 +65,16 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
         alignment: "left"
       },
       {
-        id: "main-article",
+        id: "main-article-image",
+        type: "image",
+        src: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&h=300&fit=crop",
+        alt: "Huvudartikel",
+        alignment: "center"
+      },
+      {
+        id: "main-article-text",
         type: "text",
         content: `<div style="padding: 0 20px 40px 20px;">
-          <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&h=300&fit=crop" alt="Huvudartikel" style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 24px;" />
           <h3 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 12px 0;">Huvudrubrik för månaden</h3>
           <p style="font-size: 16px; line-height: 1.6; color: #374151; margin: 0 0 20px 0;">
             Detta är platsen för ditt huvudsakliga innehåll. Berätta om viktiga uppdateringar, lansera nya produkter eller dela värdefulla insikter med dina läsare.
@@ -76,7 +82,8 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
           <p style="font-size: 16px; line-height: 1.6; color: #374151; margin: 0;">
             Håll texten engagerande och lätt att läsa. Använd korta stycken och tydliga rubriker för bästa läsbarhet.
           </p>
-        </div>`
+        </div>`,
+        alignment: "left"
       },
       {
         id: "cta-button",
@@ -146,11 +153,17 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
         </div>`
       },
       {
+        id: "product-image",
+        type: "image",
+        src: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop",
+        alt: "Produkt",
+        alignment: "center"
+      },
+      {
         id: "product-showcase",
         type: "text",
         content: `<div style="padding: 20px;">
           <div style="background-color: #f9fafb; border-radius: 12px; padding: 30px; text-align: center;">
-            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=300&fit=crop" alt="Produkt" style="width: 300px; height: 250px; object-fit: cover; border-radius: 8px; margin: 0 auto 24px auto; display: block;" />
             <h3 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 12px 0;">Populära produkter</h3>
             <p style="font-size: 16px; color: #6b7280; margin: 0 0 20px 0; line-height: 1.5;">
               Upptäck vårt sortiment av högkvalitativa produkter, nu med 50% rabatt!

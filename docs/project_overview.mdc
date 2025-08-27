@@ -275,6 +275,26 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
     - **Container Fix**: Resolved overflow issues, proper height constraints for scrollable areas
   - **Status**: Professional email campaign builder with enterprise-grade data protection and optimal user experience
 
+- **Template Editing & Component Fixes ✅ COMPLETED**
+  - **Files**: `app/campaigns/email/page.tsx` (template ID fix), `components/email/EmailBuilder.tsx` (image overlay), `components/email/ElementLibrary.tsx` (layout timing), `hooks/useAutoSave.ts` (SSR fix)
+  - **Features**:
+    - **Template Element Editing**: Fixed template elements to be fully editable with proper unique IDs
+    - **Universal Image Replacement**: All images (template and user-added) now have hover overlays with "Byt bild" button
+    - **Quick Layout Fix**: "Bild + text" layout now properly adds both image and text elements
+    - **SSR Compatibility**: Auto-save system now works properly with server-side rendering
+    - **Improved Image UX**: Better overlay styling and z-index management for reliable interaction
+  - **Status**: Complete template editing system with universal image replacement and robust auto-save functionality
+
+- **Critical UX & Layout Fixes ✅ COMPLETED**
+  - **Files**: `data/emailTemplates.ts` (restructured), `components/email/EmailBuilder.tsx` (editor fixes), `app/campaigns/email/page.tsx` (layout height), `components/email/ElementLibrary.tsx` (height fix)
+  - **Features**:
+    - **Template Image Visibility**: Restructured email templates to use separate image elements instead of embedded HTML images, making all template images replaceable with hover overlays
+    - **Stable Text Editing**: Fixed text editor to preserve HTML structure without reconstructing on every keystroke, enabling smooth editing experience
+    - **Maximized Layout Height**: Increased 3-column layout to use `calc(100vh-80px)` for optimal screen space utilization
+    - **Container Overflow Fix**: Added proper max-height constraints to prevent Element and Preview sections from extending below viewport
+    - **Improved Developer Experience**: Text editor now shows raw HTML with syntax tips for advanced users
+  - **Status**: Professional editing experience with stable text input, visible image overlays, and optimized layout spacing
+
 - **Test SMS (Twilio) ✅ COMPLETED**
   - **Files**: `convex/smsAction.ts`, `convex/sms.ts`, `components/sms/TestSender.tsx`
   - **HTTP endpoints**: none required for sending; delivery webhook pending

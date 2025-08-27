@@ -75,18 +75,24 @@ export default function CreateEmailCampaign() {
   };
 
   const handleTemplateSelect = (template: EmailTemplate) => {
-    const hasImages = template.elements.some(el => el.type === "image");
+    // Create elements with unique IDs
+    const elementsWithUniqueIds = template.elements.map((element, index) => ({
+      ...element,
+      id: `${template.id}-${element.type}-${index}-${Date.now()}`
+    }));
+
+    const hasImages = elementsWithUniqueIds.some(el => el.type === "image");
     
     if (hasImages) {
       setSelectedTemplate(template);
-      setTempElements([...template.elements]);
+      setTempElements(elementsWithUniqueIds);
       setImageReplacementIndex(0);
       setShowImageReplacement(true);
     } else {
       setEmailContent(prev => ({
         ...prev,
         template,
-        elements: template.elements
+        elements: elementsWithUniqueIds
       }));
       setStep("build");
     }
@@ -97,7 +103,7 @@ export default function CreateEmailCampaign() {
       setEmailContent(prev => ({
         ...prev,
         template: selectedTemplate,
-        elements: selectedTemplate.elements
+        elements: tempElements
       }));
       setStep("build");
       setShowImageReplacement(false);
@@ -179,7 +185,7 @@ export default function CreateEmailCampaign() {
         )}
 
         {step === "build" && (
-          <div className="w-full h-[calc(100vh-120px)] flex flex-col">
+          <div className="w-full h-[calc(100vh-80px)] flex flex-col">
             <div className="mb-6">
               <div className="flex items-center justify-between">
                 <div>

@@ -86,28 +86,30 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
       
       case "image":
         return (
-          <div className={`text-${element.alignment || "center"} group relative`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={element.src} 
-              alt={element.alt || ""} 
-              className="max-w-full h-auto"
-              style={{ maxHeight: "300px" }}
-            />
-            {/* Replace Image Overlay */}
-            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <Button
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedElementId(element.id);
-                  setShowImageUpload(true);
-                }}
-                className="gap-2"
-              >
-                <Image className="h-4 w-4" />
-                Byt bild
-              </Button>
+          <div className={`text-${element.alignment || "center"}`}>
+            <div className="relative inline-block group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={element.src} 
+                alt={element.alt || ""} 
+                className="max-w-full h-auto block"
+                style={{ maxHeight: "300px" }}
+              />
+              {/* Replace Image Overlay */}
+              <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                <Button
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedElementId(element.id);
+                    setShowImageUpload(true);
+                  }}
+                  className="gap-2"
+                >
+                  <Image className="h-4 w-4" />
+                  Byt bild
+                </Button>
+              </div>
             </div>
           </div>
         );
@@ -188,23 +190,20 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
         {selectedElement.type === "text" && (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="content">Innehåll</Label>
+              <Label htmlFor="content">Innehåll (HTML)</Label>
               <Textarea
                 id="content"
-                value={selectedElement.content?.replace(/<[^>]*>/g, '') || ""}
+                value={selectedElement.content || ""}
                 onChange={(e) => {
-                  const plainText = e.target.value;
-                  const htmlContent = `<div style="padding: 20px;">
-                    <p style="font-size: 16px; line-height: 1.6; color: #374151; margin: 0;">
-                      ${plainText.replace(/\n/g, '<br>')}
-                    </p>
-                  </div>`;
-                  handleElementUpdate(selectedElement.id, { content: htmlContent });
+                  handleElementUpdate(selectedElement.id, { content: e.target.value });
                 }}
-                rows={6}
-                className="mt-1"
-                placeholder="Skriv ditt innehåll här..."
+                rows={8}
+                className="mt-1 font-mono text-sm"
+                placeholder="Skriv HTML-innehåll här..."
               />
+              <div className="text-xs text-gray-500 mt-1">
+                Tips: Du kan använda HTML-taggar som &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;br&gt;, etc.
+              </div>
             </div>
             <div>
               <Label>Justering</Label>
@@ -379,7 +378,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
   };
 
   return (
-    <div className="flex flex-row gap-4 h-full">
+    <div className="flex flex-row gap-4 h-full max-h-[calc(100vh-240px)]">
       {/* Element Library */}
       <div className="w-72 flex-shrink-0">
         <ElementLibrary onElementAdd={handleElementAdd} />
@@ -387,7 +386,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
 
       {/* Email Preview */}
       <div className="flex-1 min-w-0">
-        <Card className="h-full">
+        <Card className="h-full max-h-[calc(100vh-240px)]">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between">
               <h3 className="font-medium">Förhandsvisning</h3>
@@ -410,7 +409,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
             </div>
           </div>
 
-          <ScrollArea className="h-[calc(100%-60px)]">
+          <ScrollArea className="h-[calc(100vh-280px)]">
             <div className={`p-4 ${previewMode === "mobile" ? "max-w-sm mx-auto" : ""}`}>
               <div className="bg-white border rounded-lg overflow-hidden">
                 {elements.length === 0 ? (
@@ -499,11 +498,11 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
 
       {/* Element Settings */}
       <div className="w-72 flex-shrink-0">
-        <Card className="h-full">
+        <Card className="h-full max-h-[calc(100vh-240px)]">
           <div className="p-4 border-b">
             <h3 className="font-medium">Inställningar</h3>
           </div>
-          <ScrollArea className="h-[calc(100%-60px)]">
+          <ScrollArea className="h-[calc(100vh-280px)]">
             <ElementEditor />
           </ScrollArea>
         </Card>

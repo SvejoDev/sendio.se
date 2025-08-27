@@ -21,6 +21,7 @@ export function useAutoSave<T extends AutoSaveData>(
 
   const saveData = useCallback(() => {
     try {
+      if (typeof window === 'undefined') return;
       const saveData = {
         ...data,
         lastSaved: Date.now()
@@ -34,6 +35,7 @@ export function useAutoSave<T extends AutoSaveData>(
 
   const loadData = useCallback((): T | null => {
     try {
+      if (typeof window === 'undefined') return null;
       const saved = localStorage.getItem(key);
       if (saved) {
         return JSON.parse(saved);
@@ -46,6 +48,7 @@ export function useAutoSave<T extends AutoSaveData>(
 
   const clearSavedData = useCallback(() => {
     try {
+      if (typeof window === 'undefined') return;
       localStorage.removeItem(key);
       console.log("Cleared saved data:", key);
     } catch (error) {
