@@ -17,10 +17,13 @@ import {
   Monitor,
   AlignLeft,
   AlignCenter,
-  AlignRight
+  AlignRight,
+  Image
 } from "lucide-react";
 import { EmailElement, EmailTemplate } from "@/data/emailTemplates";
 import ElementLibrary from "./ElementLibrary";
+import ImageUpload from "./ImageUpload";
+
 
 interface EmailBuilderProps {
   template: EmailTemplate | null;
@@ -31,12 +34,13 @@ interface EmailBuilderProps {
 export default function EmailBuilder({ elements, onElementsChange }: EmailBuilderProps) {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const selectedElement = elements.find(el => el.id === selectedElementId);
 
   const handleElementAdd = (newElement: Partial<EmailElement>) => {
     const element: EmailElement = {
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
       type: newElement.type || "text",
       ...newElement
     };
@@ -82,7 +86,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
       
       case "image":
         return (
-          <div className={`text-${element.alignment || "center"}`}>
+          <div className={`text-${element.alignment || "center"} group relative`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={element.src} 
@@ -90,6 +94,21 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
               className="max-w-full h-auto"
               style={{ maxHeight: "300px" }}
             />
+            {/* Replace Image Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Button
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedElementId(element.id);
+                  setShowImageUpload(true);
+                }}
+                className="gap-2"
+              >
+                <Image className="h-4 w-4" />
+                Byt bild
+              </Button>
+            </div>
           </div>
         );
       
@@ -210,8 +229,31 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
 
         {selectedElement.type === "image" && (
           <div className="space-y-4">
+            {/* Current Image Preview */}
+            {selectedElement.src && (
+              <div className="text-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={selectedElement.src}
+                  alt={selectedElement.alt || ""}
+                  className="max-w-full h-auto max-h-32 mx-auto rounded border"
+                />
+              </div>
+            )}
+            
+            {/* Replace Image Button */}
+            <Button
+              onClick={() => setShowImageUpload(true)}
+              className="w-full gap-2"
+              variant={selectedElement.src ? "outline" : "default"}
+            >
+              <Image className="h-4 w-4" />
+              {selectedElement.src ? "Byt bild" : "Lägg till bild"}
+            </Button>
+
+            {/* Manual URL Input */}
             <div>
-              <Label htmlFor="src">Bild-URL</Label>
+              <Label htmlFor="src">Eller ange bild-URL</Label>
               <Input
                 id="src"
                 value={selectedElement.src || ""}
@@ -220,6 +262,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
                 className="mt-1"
               />
             </div>
+            
             <div>
               <Label htmlFor="alt">Alt-text</Label>
               <Input
@@ -336,14 +379,14 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+    <div className="flex flex-row gap-4 h-full">
       {/* Element Library */}
-      <div className="lg:col-span-1">
+      <div className="w-72 flex-shrink-0">
         <ElementLibrary onElementAdd={handleElementAdd} />
       </div>
 
       {/* Email Preview */}
-      <div className="lg:col-span-2">
+      <div className="flex-1 min-w-0">
         <Card className="h-full">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between">
@@ -367,7 +410,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
             </div>
           </div>
 
-          <ScrollArea className="h-[calc(100vh-400px)]">
+          <ScrollArea className="h-[calc(100%-60px)]">
             <div className={`p-4 ${previewMode === "mobile" ? "max-w-sm mx-auto" : ""}`}>
               <div className="bg-white border rounded-lg overflow-hidden">
                 {elements.length === 0 ? (
@@ -454,17 +497,33 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
         </Card>
       </div>
 
-      {/* Element Editor */}
-      <div className="lg:col-span-1">
+      {/* Element Settings */}
+      <div className="w-72 flex-shrink-0">
         <Card className="h-full">
           <div className="p-4 border-b">
             <h3 className="font-medium">Inställningar</h3>
           </div>
-          <ScrollArea className="h-[calc(100vh-400px)]">
+          <ScrollArea className="h-[calc(100%-60px)]">
             <ElementEditor />
           </ScrollArea>
         </Card>
       </div>
+
+      {/* Image Upload Modal */}
+      <ImageUpload
+        isOpen={showImageUpload}
+        onClose={() => setShowImageUpload(false)}
+        onImageSelect={(imageData) => {
+          if (selectedElement?.type === "image") {
+            handleElementUpdate(selectedElement.id, {
+              src: imageData.src,
+              alt: imageData.alt
+            });
+          }
+        }}
+        currentSrc={selectedElement?.type === "image" ? selectedElement.src : undefined}
+        currentAlt={selectedElement?.type === "image" ? selectedElement.alt : undefined}
+      />
     </div>
   );
 }

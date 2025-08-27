@@ -170,7 +170,7 @@ export default function ElementLibrary({ onElementAdd }: ElementLibraryProps) {
         <p className="text-sm text-gray-600">Dra eller klicka för att lägga till</p>
       </div>
 
-      <ScrollArea className="h-[calc(100vh-300px)]">
+      <ScrollArea className="h-[calc(100%-60px)]">
         <div className="p-4 space-y-6">
           {/* Basic Elements */}
           <div>
