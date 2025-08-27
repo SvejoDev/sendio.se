@@ -141,6 +141,7 @@ export default function CreateEmailCampaign() {
   };
 
   const handleContentUpdate = (elements: EmailElement[]) => {
+    console.log('📝 Parent updating content with elements:', elements.map(el => `${el.type}(${el.id?.slice(-6) || 'no-id'})`));
     setEmailContent(prev => ({ ...prev, elements }));
   };
 

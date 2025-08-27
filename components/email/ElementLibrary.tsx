@@ -16,6 +16,7 @@ import { EmailElement } from "@/data/emailTemplates";
 
 interface ElementLibraryProps {
   onElementAdd: (element: Partial<EmailElement>) => void;
+  onMultipleElementsAdd?: (elements: Partial<EmailElement>[]) => void;
 }
 
 const elementTypes = [
@@ -117,7 +118,8 @@ const quickLayouts = [
       {
         type: "image" as const,
         src: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&h=300&fit=crop",
-        alt: "Bild"
+        alt: "Bild",
+        alignment: "center" as const
       },
       {
         type: "text" as const,
@@ -154,7 +156,7 @@ const quickLayouts = [
   }
 ];
 
-export default function ElementLibrary({ onElementAdd }: ElementLibraryProps) {
+export default function ElementLibrary({ onElementAdd, onMultipleElementsAdd }: ElementLibraryProps) {
   const handleAddElement = (elementTemplate: Partial<EmailElement>) => {
     const newElement = {
       ...elementTemplate,
@@ -213,11 +215,20 @@ export default function ElementLibrary({ onElementAdd }: ElementLibraryProps) {
                   variant="ghost"
                   className="w-full justify-start h-auto p-3 hover:bg-gray-50"
                   onClick={() => {
-                    layout.elements.forEach((element, index) => {
-                      setTimeout(() => {
-                        handleAddElement(element);
-                      }, index * 200);
-                    });
+                    // Use the multiple elements add function to avoid React batching issues
+                    const elementsToAdd = layout.elements.map((element, index) => ({
+                      ...element,
+                      id: `${layout.name}-${element.type}-${index}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`
+                    }));
+                    
+                    if (onMultipleElementsAdd) {
+                      onMultipleElementsAdd(elementsToAdd);
+                    } else {
+                      // Fallback for single elements
+                      elementsToAdd.forEach(element => {
+                        onElementAdd(element);
+                      });
+                    }
                   }}
                 >
                   <div className="flex items-center gap-3 w-full">

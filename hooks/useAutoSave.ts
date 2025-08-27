@@ -27,7 +27,7 @@ export function useAutoSave<T extends AutoSaveData>(
         lastSaved: Date.now()
       };
       localStorage.setItem(key, JSON.stringify(saveData));
-      console.log("Auto-saved:", key);
+      console.log("💾 Auto-saved:", key, 'Elements count:', saveData.elements?.length || 0);
       return Date.now();
     } catch (error) {
       console.error("Failed to auto-save:", error);

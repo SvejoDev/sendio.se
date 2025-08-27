@@ -177,15 +177,37 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [showImageUpload, setShowImageUpload] = useState(false);
 
+  // Debug: Track elements changes
+  useEffect(() => {
+    console.log('🔄 Elements array changed:', elements.map(el => `${el.type}(${el.id.slice(-6)})`));
+  }, [elements]);
+
+
   const selectedElement = elements.find(el => el.id === selectedElementId);
 
   const handleElementAdd = (newElement: Partial<EmailElement>) => {
     const element: EmailElement = {
-      id: Date.now().toString() + Math.random().toString(36).substring(2, 11),
+      id: newElement.id || Date.now().toString() + Math.random().toString(36).substring(2, 11),
       type: newElement.type || "text",
       ...newElement
     };
-    onElementsChange([...elements, element]);
+    console.log('➕ Adding element:', `${element.type}(${element.id.slice(-6)})`, 'Current count:', elements.length);
+    const newElements = [...elements, element];
+    console.log('📋 New elements array:', newElements.map(el => `${el.type}(${el.id.slice(-6)})`));
+    onElementsChange(newElements);
+  };
+
+  const handleMultipleElementsAdd = (newElements: Partial<EmailElement>[]) => {
+    const elementsToAdd = newElements.map(newElement => ({
+      id: newElement.id || Date.now().toString() + Math.random().toString(36).substring(2, 11),
+      type: newElement.type || "text",
+      ...newElement
+    }));
+    
+    console.log('➕ Adding multiple elements:', elementsToAdd.map(el => `${el.type}(${el.id.slice(-6)})`));
+    const finalElements = [...elements, ...elementsToAdd];
+    console.log('📋 Final elements array:', finalElements.map(el => `${el.type}(${el.id.slice(-6)})`));
+    onElementsChange(finalElements);
   };
 
   const handleElementUpdate = (id: string, updates: Partial<EmailElement>) => {
@@ -490,7 +512,10 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
     <div className="flex flex-row gap-4 h-full">
       {/* Element Library */}
       <div className="w-72 flex-shrink-0">
-        <ElementLibrary onElementAdd={handleElementAdd} />
+        <ElementLibrary 
+          onElementAdd={handleElementAdd} 
+          onMultipleElementsAdd={handleMultipleElementsAdd}
+        />
       </div>
 
       {/* Email Preview */}
