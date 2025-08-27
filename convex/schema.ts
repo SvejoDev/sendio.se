@@ -56,7 +56,7 @@ export default defineSchema({
   // Campaign analytics and tracking
   campaignAnalytics: defineTable({
     campaignId: v.id("campaigns"),
-    contactId: v.id("contacts"),
+    contactId: v.optional(v.id("contacts")),
     type: v.union(v.literal("sms"), v.literal("email")),
     status: v.union(
       v.literal("sent"),
@@ -72,6 +72,8 @@ export default defineSchema({
     openedAt: v.optional(v.number()),
     clickedAt: v.optional(v.number()),
     errorMessage: v.optional(v.string()),
+    // Mark analytics rows originating from free test sends
+    isTest: v.optional(v.boolean()),
   })
     .index("by_campaign", ["campaignId"])
     .index("by_campaign_and_type", ["campaignId", "type"])

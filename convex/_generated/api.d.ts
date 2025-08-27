@@ -18,6 +18,8 @@ import type * as auth from "../auth.js";
 import type * as contacts from "../contacts.js";
 import type * as http from "../http.js";
 import type * as myFunctions from "../myFunctions.js";
+import type * as sms from "../sms.js";
+import type * as smsAction from "../smsAction.js";
 import type * as unsubscribe from "../unsubscribe.js";
 
 /**
@@ -34,6 +36,8 @@ declare const fullApi: ApiFromModules<{
   contacts: typeof contacts;
   http: typeof http;
   myFunctions: typeof myFunctions;
+  sms: typeof sms;
+  smsAction: typeof smsAction;
   unsubscribe: typeof unsubscribe;
 }>;
 export declare const api: FilterApi<
