@@ -4,6 +4,7 @@ import { action } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { api } from "./_generated/api";
 import { randomBytes } from "node:crypto";
+import { renderMessage, normalizePhoneToE164, requiresUcs2 } from "./utils";
 
 function buildSmsText(baseMessage: string, token: string): string {
     return `${baseMessage}\n\nAvreg https://sendio.se/u/${token}`;
@@ -14,6 +15,9 @@ export const sendTest = action({
         campaignId: v.id("campaigns"),
         message: v.string(),
         phoneNumber: v.string(),
+        firstName: v.optional(v.string()),
+        lastName: v.optional(v.string()),
+        senderId: v.optional(v.string()),
     },
     returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
     handler: async (ctx, args) => {
@@ -50,17 +54,35 @@ export const sendTest = action({
         if (!claim.claimed) return { success: false, error: "Test already used or in progress" };
 
         const token = randomBytes(8).toString('base64url').slice(0, 10);
-        const text = buildSmsText(args.message, token);
+        const personalized = renderMessage(args.message, {
+            first_name: args.firstName ?? "",
+            last_name: args.lastName ?? "",
+        });
+        const text = buildSmsText(personalized, token);
+        const ucs2 = requiresUcs2(text);
+        console.log("[sendTest] composed text:", text);
+        console.log("[sendTest] requiresUcs2:", ucs2);
 
         try {
             // eslint-disable-next-line @typescript-eslint/no-var-requires
             const Twilio = require("twilio");
             const sid = process.env.TWILIO_ACCOUNT_SID;
             const authToken = process.env.TWILIO_AUTH_TOKEN;
-            const from = process.env.TWILIO_PHONE_NUMBER;
-            if (!sid || !authToken || !from) throw new Error("Twilio is not configured");
+            const configuredNumber = process.env.TWILIO_PHONE_NUMBER;
+            const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
+            if (!sid || !authToken || !configuredNumber) throw new Error("Twilio is not configured");
             const client = new Twilio(sid, authToken);
-            await client.messages.create({ from, to: args.phoneNumber, body: text });
+            // Use numeric sender when UCS-2 (emojis) are present for best deliverability
+            const alphanumeric = (args.senderId ?? "").trim();
+            const from = ucs2 ? configuredNumber : (alphanumeric.length > 0 ? alphanumeric : configuredNumber);
+            const to = normalizePhoneToE164(args.phoneNumber);
+            if (!to) throw new Error("Invalid phone number format");
+            console.log("[sendTest] sending SMS", { from, to, bodyLength: text.length, ucs2, usingMS: Boolean(messagingServiceSid) });
+            if (messagingServiceSid) {
+                await client.messages.create({ messagingServiceSid, to, body: text });
+            } else {
+                await client.messages.create({ from, to, body: text });
+            }
 
             await ctx.runMutation(api.sms.finalizeTestSend, {
                 campaignId: args.campaignId,

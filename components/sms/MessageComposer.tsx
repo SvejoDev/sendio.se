@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 type MessageComposerProps = {
   initialText?: string;
   onChangeText?: (text: string, segments: number) => void;
+  onChangeSender?: (sender: string) => void;
 };
 
 function generatePlaceholderToken(length = 10) {
@@ -24,14 +25,27 @@ function generatePlaceholderToken(length = 10) {
 export function MessageComposer({
   initialText = "",
   onChangeText,
+  onChangeSender,
 }: MessageComposerProps) {
   const [text, setText] = useState(initialText);
   const [token] = useState(generatePlaceholderToken());
   const [sender, setSender] = useState("");
 
-  const insertVariable = useCallback((variable: string) => {
-    setText((prev) => prev + variable);
-  }, []);
+  const commitText = useCallback(
+    (next: string) => {
+      setText(next);
+      const segments = computeSegmentsForMessage(next);
+      onChangeText?.(next, segments);
+    },
+    [onChangeText],
+  );
+
+  const insertVariable = useCallback(
+    (variable: string) => {
+      commitText(text + variable);
+    },
+    [text, commitText],
+  );
 
   const preview = useMemo(() => buildSmsPreview(text, token), [text, token]);
 
@@ -43,17 +57,21 @@ export function MessageComposer({
           value={text}
           onChange={(e) => {
             const next = e.target.value;
-            setText(next);
-            const segments = computeSegmentsForMessage(next);
-            onChangeText?.(next, segments);
+            commitText(next);
           }}
           placeholder={"Hej {first_name}, missa inte vårt erbjudande!"}
           rows={10}
         />
-        <SenderIdInput value={sender} onChange={setSender} />
+        <SenderIdInput
+          value={sender}
+          onChange={(s) => {
+            setSender(s);
+            onChangeSender?.(s);
+          }}
+        />
         <CharacterCounter message={text} />
         <VariableInserter onInsert={insertVariable} />
-        <EmojiPicker onInsert={(e) => setText((prev) => prev + e)} />
+        <EmojiPicker onInsert={(e) => commitText(text + e)} />
         <div className="text-xs text-muted-foreground">
           Avregistreringslänken läggs automatiskt till och kan inte tas bort.
         </div>

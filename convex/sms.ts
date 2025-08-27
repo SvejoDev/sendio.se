@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id, Doc } from "./_generated/dataModel";
 
@@ -8,6 +8,7 @@ export const getCampaign = query({
     args: { campaignId: v.id("campaigns") },
     returns: v.union(
         v.object({
+            _creationTime: v.number(),
             _id: v.id("campaigns"),
             companyId: v.id("companies"),
             name: v.string(),
@@ -19,6 +20,7 @@ export const getCampaign = query({
             createdAt: v.number(),
             testInProgress: v.optional(v.boolean()),
             testConsumed: v.optional(v.boolean()),
+            testCount: v.optional(v.number()),
         }),
         v.null()
     ),
@@ -32,6 +34,7 @@ export const getCompany = query({
     args: { companyId: v.id("companies") },
     returns: v.union(
         v.object({
+            _creationTime: v.number(),
             _id: v.id("companies"),
             userId: v.id("users"),
             companyName: v.string(),
@@ -50,12 +53,18 @@ export const hasUsedTest = query({
     args: { campaignId: v.id("campaigns") },
     returns: v.boolean(),
     handler: async (ctx, args) => {
+        const camp = await ctx.db.get(args.campaignId);
+        if (!camp) return false;
+        // Consider any count >= 5 as used up
+        if ((camp.testCount ?? 0) >= 5) return true;
+        // Fallback for legacy rows without testCount
         const record = await ctx.db
             .query("campaignAnalytics")
             .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
             .order("desc")
             .collect();
-        return record.some((r) => r.isTest === true && r.type === "sms");
+        const sentCount = record.filter((r) => r.isTest === true && r.type === "sms" && r.status === "sent").length;
+        return sentCount >= 5;
     },
 });
 
@@ -109,9 +118,21 @@ export const claimTestSend = mutation({
         if (!company) throw new Error("Company not found");
         if (company.userId !== userId) throw new Error("Unauthorized");
 
-        // If already consumed or in progress, cannot claim
-        if (campaign.testConsumed === true) return { claimed: false };
+        // If in progress, cannot claim
         if (campaign.testInProgress === true) return { claimed: false };
+
+        // Enforce max of 5 successful tests per campaign
+        let currentCount = campaign.testCount ?? 0;
+        if (campaign.testCount === undefined) {
+            // Backfill from analytics if missing
+            const analytics = await ctx.db
+                .query("campaignAnalytics")
+                .withIndex("by_campaign", (q) => q.eq("campaignId", args.campaignId))
+                .collect();
+            currentCount = analytics.filter((a) => a.isTest === true && a.type === "sms" && a.status === "sent").length;
+            await ctx.db.patch(args.campaignId, { testCount: currentCount });
+        }
+        if (currentCount >= 5) return { claimed: false };
 
         // Mark in progress
         await ctx.db.patch(args.campaignId, { testInProgress: true });
@@ -148,7 +169,8 @@ export const finalizeTestSend = mutation({
             isTest: true,
         };
         await ctx.db.insert("campaignAnalytics", analyticsData);
-        await ctx.db.patch(args.campaignId, { testInProgress: false, testConsumed: true });
+        const nextCount = (campaign.testCount ?? 0) + 1;
+        await ctx.db.patch(args.campaignId, { testInProgress: false, testCount: nextCount });
         return null;
     },
 });
@@ -265,4 +287,53 @@ export const ensureDraftCampaign = mutation({
     },
 });
 
+
+// Save SMS draft content (message template and optional senderId)
+export const saveSmsContent = mutation({
+    args: {
+        campaignId: v.id("campaigns"),
+        message: v.string(),
+        senderId: v.optional(v.string()),
+    },
+    returns: v.null(),
+    handler: async (ctx, args) => {
+        const userId = await getAuthUserId(ctx);
+        if (userId === null) throw new Error("Unauthorized");
+
+        const campaign = await ctx.db.get(args.campaignId);
+        if (!campaign) throw new Error("Campaign not found");
+
+        const company = await ctx.db.get(campaign.companyId);
+        if (!company) throw new Error("Company not found");
+        if (company.userId !== userId) throw new Error("Unauthorized");
+
+        await ctx.db.patch(args.campaignId, {
+            content: { message: args.message, senderId: args.senderId },
+        });
+        return null;
+    },
+});
+
+// Internal mutations to log campaign sends from actions
+export const logCampaignSend = internalMutation({
+    args: {
+        campaignId: v.id("campaigns"),
+        contactId: v.id("contacts"),
+        status: v.union(v.literal("sent"), v.literal("failed")),
+        errorMessage: v.optional(v.string()),
+    },
+    returns: v.null(),
+    handler: async (ctx, args) => {
+        await ctx.db.insert("campaignAnalytics", {
+            campaignId: args.campaignId,
+            contactId: args.contactId,
+            type: "sms",
+            status: args.status,
+            sentAt: Date.now(),
+            errorMessage: args.errorMessage,
+            isTest: false,
+        });
+        return null;
+    },
+});
 

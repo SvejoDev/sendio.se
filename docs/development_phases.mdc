@@ -227,6 +227,7 @@ campaigns: {
 - One-click unsubscribe (no login required)
 - Update contact unsubscribed status, channel‑specifik (SMS/E‑post separat)
 - Preserve unsubscribe status across imports via permanent suppression list (Do‑Not‑Contact). Import consults suppression by email and phone and preserves opt‑outs even if contacts were previously deleted and re‑added later.
+- Server-side enforcement: Test SMS cannot be sent to unsubscribed numbers at send time (checked against suppression + contact flags).
 - Simple confirmation page with clear choices
 - Log unsubscribe events for compliance (`gdprLogs`)
 
@@ -320,13 +321,31 @@ campaigns: {
 **Requirements:**
 
 - Send test SMS to user's own number
-- Limit: 1 free test per campaign
+- Limit: Up to 5 tests per campaign (tracked per campaign)
 - Include AVREG link in test SMS
 - Variable replacement in test message
+- Emoji support with UCS‑2 detection; fallback to numeric sender when emojis present
 - Success/failure feedback
 - Log test sends for analytics
 
-Status: Implemented `TestSender` UI, Convex `sms.sendTest` action with one-free-test enforcement, AVREG link inclusion, variable handling, analytics logging, and validation. Build passes.
+Status: Implemented `TestSender` UI, Convex `smsAction.sendTest` with 5-test enforcement, AVREG link inclusion, variable handling, emoji support (UCS‑2 detection), phone normalization to E.164, analytics logging, validation, and server-side suppression checks (blocks unsubscribed recipients). Build passes.
+
+#### Environment & APIs for SMS
+
+- Required env (add to `.env.local` and hosting env):
+  - `TWILIO_ACCOUNT_SID`
+  - `TWILIO_AUTH_TOKEN`
+  - `TWILIO_PHONE_NUMBER`
+  - `TWILIO_MESSAGING_SERVICE_SID` (optional)
+
+#### Notes on Encoding & Sender ID
+
+- Messages with emojis/non‑GSM characters switch to UCS‑2 (70/67 char segments) per Twilio guidance.
+- When UCS‑2 is detected, we send from the numeric Twilio number rather than alphanumeric sender for better deliverability.
+- We normalize Swedish local numbers (e.g., `073…`) to E.164 (`+46…`).
+- Webhooks to implement later (Phase 7):
+  - `POST /api/webhooks/twilio` in `convex/http.ts` for delivery status
+  - Store events in `campaignAnalytics`
 
 ## 📋 Phase 4: Email Campaign Builder
 
@@ -413,6 +432,15 @@ Status: Implemented `TestSender` UI, Convex `sms.sendTest` action with one-free-
 - Webhook processing for payment confirmation
 - Automatic campaign sending after payment
 
+#### Environment & APIs for Stripe
+
+- Required env:
+  - `STRIPE_SECRET_KEY`
+  - `STRIPE_WEBHOOK_SECRET`
+- API endpoints:
+  - `POST /api/webhooks/stripe` in `convex/http.ts` (signature verified)
+  - Client-side Stripe Elements using `src/lib/stripe.ts`
+
 ### Task 5.2: Campaign Cost Summary
 
 **Files to create:**
@@ -449,6 +477,15 @@ Status: Implemented `TestSender` UI, Convex `sms.sendTest` action with one-free-
 - Progress tracking and user feedback
 - Automatic AVREG link insertion for SMS
 - Automatic unsubscribe footer for emails
+
+#### Environment & APIs for Email
+
+- Required env (Mailgun):
+  - `MAILGUN_API_KEY`
+  - `MAILGUN_DOMAIN`
+  - `MAILGUN_BASE_URL=api.eu.mailgun.net`
+- API endpoints:
+  - `POST /api/webhooks/mailgun` in `convex/http.ts` for events
 
 ### Task 6.2: Campaign Scheduling
 
