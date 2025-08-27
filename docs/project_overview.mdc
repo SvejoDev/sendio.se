@@ -81,6 +81,7 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 - **Required Fields**: Either phone OR email (both optional but at least one)
 - **Optional Fields**: firstName, lastName for personalization
 - **Import Behavior**: New import completely replaces old contact list, while a permanent suppression list (Do‑Not‑Contact) preserves unsubscribes across imports (matched by email and phone).
+- **Server-side Enforcement**: Test SMS are blocked server‑side if a number is unsubscribed, even if the client forgets to filter.
 - **Manual Management**: Add, edit, delete contacts individually
 - **Validation**: Real-time email/phone validation with error reporting
 
@@ -92,6 +93,7 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 - **Variables**: {first_name}, {last_name} replacement
 - **AVREG Compliance**: Mandatory "Avreg {link}" auto-appended (Swedish GDPR)
 - **Test SMS**: Free test to user's number (1 per campaign)
+- **Server-side Suppression Check**: System prevents sending test SMS to unsubscribed numbers (company scope)
 - **Character Calculation**: Twilio-accurate segments (GSM-7 160/153, UCS-2 70/67) including auto-appended AVREG `/u/{token}`
 - **Emoji Support**: Quick insert of common emojis
 

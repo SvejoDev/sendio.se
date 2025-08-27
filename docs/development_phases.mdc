@@ -227,6 +227,7 @@ campaigns: {
 - One-click unsubscribe (no login required)
 - Update contact unsubscribed status, channel‑specifik (SMS/E‑post separat)
 - Preserve unsubscribe status across imports via permanent suppression list (Do‑Not‑Contact). Import consults suppression by email and phone and preserves opt‑outs even if contacts were previously deleted and re‑added later.
+- Server-side enforcement: Test SMS cannot be sent to unsubscribed numbers at send time (checked against suppression + contact flags).
 - Simple confirmation page with clear choices
 - Log unsubscribe events for compliance (`gdprLogs`)
 
@@ -326,7 +327,7 @@ campaigns: {
 - Success/failure feedback
 - Log test sends for analytics
 
-Status: Implemented `TestSender` UI, Convex `sms.sendTest` action with one-free-test enforcement, AVREG link inclusion, variable handling, analytics logging, and validation. Build passes.
+Status: Implemented `TestSender` UI, Convex `sms.sendTest` action with one-free-test enforcement, AVREG link inclusion, variable handling, analytics logging, validation, and server-side suppression checks (blocks unsubscribed recipients). Build passes.
 
 ## 📋 Phase 4: Email Campaign Builder
 
