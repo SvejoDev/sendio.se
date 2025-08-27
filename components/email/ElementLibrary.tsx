@@ -164,13 +164,13 @@ export default function ElementLibrary({ onElementAdd }: ElementLibraryProps) {
   };
 
   return (
-    <Card className="h-full max-h-[calc(100vh-240px)]">
+    <Card className="h-full flex flex-col">
       <div className="p-4 border-b">
         <h3 className="font-medium">Element</h3>
         <p className="text-sm text-gray-600">Dra eller klicka för att lägga till</p>
       </div>
 
-      <ScrollArea className="h-[calc(100vh-280px)]">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-4 space-y-6">
           {/* Basic Elements */}
           <div>

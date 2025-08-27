@@ -171,7 +171,7 @@ export default function CreateEmailCampaign() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-4">
         {step === "template" && (
           <div className="max-w-6xl mx-auto">
             <div className="mb-6">
@@ -185,8 +185,8 @@ export default function CreateEmailCampaign() {
         )}
 
         {step === "build" && (
-          <div className="w-full h-[calc(100vh-80px)] flex flex-col">
-            <div className="mb-6">
+          <div className="w-full flex flex-col">
+            <div className="mb-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-semibold mb-2">Anpassa ditt meddelande</h2>
@@ -234,7 +234,7 @@ export default function CreateEmailCampaign() {
             </div>
 
             {/* Email Settings Row */}
-            <div className="mb-6">
+            <div className="mb-4">
               <Card className="p-4">
                 <h3 className="font-medium mb-4">E-postinställningar</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -283,7 +283,7 @@ export default function CreateEmailCampaign() {
             </div>
 
             {/* Email Builder Row */}
-            <div className="flex-1 min-h-0">
+            <div className="h-[700px] mb-8">
               <EmailBuilder
                 template={emailContent.template}
                 elements={emailContent.elements}

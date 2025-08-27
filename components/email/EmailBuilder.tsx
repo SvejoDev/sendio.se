@@ -487,7 +487,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
   };
 
   return (
-    <div className="flex flex-row gap-4 h-[calc(100vh-240px)] max-h-[calc(100vh-240px)]">
+    <div className="flex flex-row gap-4 h-full">
       {/* Element Library */}
       <div className="w-72 flex-shrink-0">
         <ElementLibrary onElementAdd={handleElementAdd} />
@@ -495,7 +495,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
 
       {/* Email Preview */}
       <div className="flex-1 min-w-0">
-        <Card className="h-[calc(100vh-240px)] max-h-[calc(100vh-240px)]">
+        <Card className="h-full flex flex-col">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between">
               <h3 className="font-medium">Förhandsvisning</h3>
@@ -518,7 +518,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
             </div>
           </div>
 
-          <ScrollArea className="h-[calc(100vh-280px)]">
+          <ScrollArea className="flex-1 min-h-0">
             <div className={`p-4 ${previewMode === "mobile" ? "max-w-sm mx-auto" : ""}`}>
               <div className="bg-white border rounded-lg overflow-hidden">
                 {elements.length === 0 ? (
@@ -607,11 +607,11 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
 
       {/* Element Settings */}
       <div className="w-72 flex-shrink-0">
-        <Card className="h-[calc(100vh-240px)] max-h-[calc(100vh-240px)]">
+        <Card className="h-full flex flex-col">
           <div className="p-4 border-b">
             <h3 className="font-medium">Inställningar</h3>
           </div>
-          <ScrollArea className="h-[calc(100vh-280px)]">
+          <ScrollArea className="flex-1 min-h-0">
             <ElementEditor />
           </ScrollArea>
         </Card>
