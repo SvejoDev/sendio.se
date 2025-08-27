@@ -122,4 +122,16 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_contact", ["contactId"])
     .index("by_campaign", ["campaignId"]),
+
+  // Permanent suppression list (Do-Not-Contact) to persist opt-outs across imports
+  suppressions: defineTable({
+    companyId: v.id("companies"),
+    email: v.optional(v.string()),
+    phoneNumber: v.optional(v.string()),
+    smsOptOut: v.optional(v.boolean()),
+    emailOptOut: v.optional(v.boolean()),
+    createdAt: v.number(),
+  })
+    .index("by_company_and_email", ["companyId", "email"])
+    .index("by_company_and_phone", ["companyId", "phoneNumber"]),
 });

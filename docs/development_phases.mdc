@@ -226,7 +226,7 @@ campaigns: {
 - Generate unique tokens for each campaign/contact
 - One-click unsubscribe (no login required)
 - Update contact unsubscribed status, channel‑specifik (SMS/E‑post separat)
-- Preserve unsubscribe status across imports (fält sparas på kontakten)
+- Preserve unsubscribe status across imports via permanent suppression list (Do‑Not‑Contact). Import consults suppression by email and phone and preserves opt‑outs even if contacts were previously deleted and re‑added later.
 - Simple confirmation page with clear choices
 - Log unsubscribe events for compliance (`gdprLogs`)
 
@@ -234,6 +234,7 @@ campaigns: {
 
 - Kort länk: använd `/u/{token}` i SMS och e‑postfoten för att minimera tecken
 - `contacts.unsubscribed` bibehålls för bakåtkompatibilitet och sätts till `true` om någon kanal avreggas
+- Permanent suppression table `suppressions(companyId, email?, phoneNumber?, smsOptOut?, emailOptOut?, createdAt)` ensures opt‑outs are never lost on list replace.
 - Filtren i listor fortsätter att fungera via `unsubscribed`
 
 ## 📋 Phase 3: SMS Campaign Builder
@@ -688,7 +689,7 @@ campaigns: {
 - Real-time validation (email format, phone format)
 - Error reporting for invalid contacts
 - Requirement: at least email OR phone for each contact
-- New import completely replaces existing contacts
+- New import completely replaces existing contacts, but preserves unsubscribe status using the suppression list. Matching occurs by email and/or phone; new inserts consult suppression to set `unsubscribedSms`/`unsubscribedEmail` and aggregate `unsubscribed`.
 
 **Validation Rules:**
 
