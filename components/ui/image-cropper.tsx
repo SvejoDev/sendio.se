@@ -52,7 +52,6 @@ export default function ImageCropper({
 }: ImageCropperProps) {
   const imgRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const blobUrlRef = useRef('');
 
   const [imgSrc, setImgSrc] = useState(initialImage || '');
   const [crop, setCrop] = useState<Crop>();
@@ -144,28 +143,20 @@ export default function ImageCropper({
     getCroppedImg(imgRef.current, completedCrop, scale, rotate)
       .then(() => {
         const canvas = canvasRef.current!;
-        canvas.toBlob((blob) => {
-          if (!blob) {
-            console.error('Failed to create blob');
-            return;
-          }
+        
+        // Convert to base64 data URL for persistent storage
+        const dataUrl = canvas.toDataURL('image/png', 0.9);
 
-          if (blobUrlRef.current) {
-            URL.revokeObjectURL(blobUrlRef.current);
-          }
-          blobUrlRef.current = URL.createObjectURL(blob);
-
-          onCropComplete({
-            src: blobUrlRef.current,
-            alt: 'Cropped image'
-          });
-
-          // Clean up
-          setImgSrc('');
-          setCrop(undefined);
-          setCompletedCrop(undefined);
-          onClose();
+        onCropComplete({
+          src: dataUrl,
+          alt: 'Cropped image'
         });
+
+        // Clean up
+        setImgSrc('');
+        setCrop(undefined);
+        setCompletedCrop(undefined);
+        onClose();
       })
       .catch((err) => {
         console.error('Error cropping image:', err);
