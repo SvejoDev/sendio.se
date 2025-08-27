@@ -28,8 +28,10 @@ export function useAutoSave<T extends AutoSaveData>(
       };
       localStorage.setItem(key, JSON.stringify(saveData));
       console.log("Auto-saved:", key);
+      return Date.now();
     } catch (error) {
       console.error("Failed to auto-save:", error);
+      return null;
     }
   }, [data, key]);
 

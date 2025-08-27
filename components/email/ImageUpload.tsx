@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { useDropzone } from "react-dropzone";
-import { Upload, Crop, Check } from "lucide-react";
+import { Upload, Crop } from "lucide-react";
+import ImageCropper from "@/components/ui/image-cropper";
 
 interface ImageUploadProps {
   isOpen: boolean;
@@ -17,13 +18,6 @@ interface ImageUploadProps {
   currentAlt?: string;
 }
 
-interface CropSettings {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  scale: number;
-}
 
 export default function ImageUpload({ 
   isOpen, 
@@ -35,16 +29,7 @@ export default function ImageUpload({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>(currentSrc || "");
   const [altText, setAltText] = useState(currentAlt || "");
-  const [cropSettings, setCropSettings] = useState<CropSettings>({
-    x: 0,
-    y: 0,
-    width: 100,
-    height: 100,
-    scale: 1
-  });
   const [showCropper, setShowCropper] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -69,39 +54,8 @@ export default function ImageUpload({
 
   const handleUrlInput = (url: string) => {
     setPreview(url);
-    setShowCropper(false);
   };
 
-  const applyCrop = () => {
-    if (!imageRef.current || !canvasRef.current) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const image = imageRef.current;
-    
-    if (!ctx) return;
-
-    // Set canvas size
-    canvas.width = cropSettings.width;
-    canvas.height = cropSettings.height;
-    
-    // Draw cropped image
-    ctx.drawImage(
-      image,
-      cropSettings.x,
-      cropSettings.y,
-      cropSettings.width,
-      cropSettings.height,
-      0,
-      0,
-      cropSettings.width,
-      cropSettings.height
-    );
-    
-    const croppedDataUrl = canvas.toDataURL('image/png');
-    setPreview(croppedDataUrl);
-    setShowCropper(false);
-  };
 
   const handleSave = () => {
     if (preview) {
@@ -113,7 +67,6 @@ export default function ImageUpload({
       setSelectedFile(null);
       setPreview("");
       setAltText("");
-      setShowCropper(false);
     }
   };
 
@@ -122,7 +75,6 @@ export default function ImageUpload({
     setSelectedFile(null);
     setPreview(currentSrc || "");
     setAltText(currentAlt || "");
-    setShowCropper(false);
   };
 
   return (
@@ -202,105 +154,7 @@ export default function ImageUpload({
                 )}
               </div>
 
-              <div className="relative max-w-2xl mx-auto">
-                {showCropper ? (
-                  <div className="space-y-4">
-                    <div className="relative inline-block">
-                      <img
-                        ref={imageRef}
-                        src={preview}
-                        alt="Crop preview"
-                        className="max-w-full h-auto border"
-                      />
-                      <div 
-                        className="absolute border-2 border-blue-500 bg-blue-500 bg-opacity-20"
-                        style={{
-                          left: `${cropSettings.x}px`,
-                          top: `${cropSettings.y}px`,
-                          width: `${cropSettings.width}px`,
-                          height: `${cropSettings.height}px`
-                        }}
-                      >
-                        <div className="absolute inset-0 border border-white border-dashed"></div>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={applyCrop}
-                        className="gap-2"
-                      >
-                        <Check className="h-4 w-4" />
-                        Tillämpa beskärning
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowCropper(false)}
-                      >
-                        Avbryt
-                      </Button>
-                    </div>
-
-                    {/* Simple crop controls */}
-                    <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                      <div>
-                        <Label>Position X</Label>
-                        <Input
-                          type="range"
-                          min="0"
-                          max="500"
-                          value={cropSettings.x}
-                          onChange={(e) => setCropSettings(prev => ({
-                            ...prev,
-                            x: parseInt(e.target.value)
-                          }))}
-                        />
-                      </div>
-                      <div>
-                        <Label>Position Y</Label>
-                        <Input
-                          type="range"
-                          min="0"
-                          max="500"
-                          value={cropSettings.y}
-                          onChange={(e) => setCropSettings(prev => ({
-                            ...prev,
-                            y: parseInt(e.target.value)
-                          }))}
-                        />
-                      </div>
-                      <div>
-                        <Label>Bredd</Label>
-                        <Input
-                          type="range"
-                          min="50"
-                          max="600"
-                          value={cropSettings.width}
-                          onChange={(e) => setCropSettings(prev => ({
-                            ...prev,
-                            width: parseInt(e.target.value)
-                          }))}
-                        />
-                      </div>
-                      <div>
-                        <Label>Höjd</Label>
-                        <Input
-                          type="range"
-                          min="50"
-                          max="600"
-                          value={cropSettings.height}
-                          onChange={(e) => setCropSettings(prev => ({
-                            ...prev,
-                            height: parseInt(e.target.value)
-                          }))}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
+              <div className="relative max-w-2xl mx-auto">                
                   <div className="text-center">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -309,8 +163,18 @@ export default function ImageUpload({
                       className="max-w-full h-auto max-h-80 mx-auto rounded-lg"
                     />
                   </div>
-                )}
               </div>
+
+              <ImageCropper
+                isOpen={showCropper}
+                onClose={() => setShowCropper(false)}
+                onCropComplete={(croppedData) => {
+                  setPreview(croppedData.src);
+                  setAltText(croppedData.alt);
+                  setShowCropper(false);
+                }}
+                initialImage={preview}
+              />
             </Card>
           )}
 
@@ -345,7 +209,6 @@ export default function ImageUpload({
           </div>
         </div>
 
-        <canvas ref={canvasRef} className="hidden" />
       </DialogContent>
     </Dialog>
   );

@@ -203,7 +203,12 @@ export default function CreateEmailCampaign() {
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      onClick={forceSave}
+                      onClick={() => {
+                        const timestamp = forceSave();
+                        if (timestamp) {
+                          setEmailContent(prev => ({ ...prev, lastSaved: timestamp }));
+                        }
+                      }}
                       disabled={!hasUnsavedChanges()}
                       size="sm"
                       className="gap-2"

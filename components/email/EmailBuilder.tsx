@@ -31,6 +31,99 @@ interface EmailBuilderProps {
   onElementsChange: (elements: EmailElement[]) => void;
 }
 
+interface TextEditorProps {
+  element: EmailElement;
+  onUpdate: (updates: Partial<EmailElement>) => void;
+}
+
+function TextEditor({ element, onUpdate }: TextEditorProps) {
+  const [parsedContent, setParsedContent] = useState(() => {
+    // Parse HTML content to extract structured data
+    const content = element.content || "";
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    
+    // Extract title (h1, h2, h3)
+    const titleElement = doc.querySelector('h1, h2, h3');
+    const title = titleElement?.textContent || "";
+    
+    // Extract main text (p tags)
+    const textElements = doc.querySelectorAll('p');
+    const text = Array.from(textElements).map(p => p.textContent).join('\n') || "";
+    
+    return { title, text };
+  });
+
+  const updateContent = (updates: { title?: string; text?: string }) => {
+    const { title, text } = { ...parsedContent, ...updates };
+    
+    // Reconstruct HTML content
+    let htmlContent = '<div style="padding: 20px;">';
+    
+    if (title) {
+      htmlContent += `<h3 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 12px 0;">${title}</h3>`;
+    }
+    
+    if (text) {
+      const paragraphs = text.split('\n').filter(p => p.trim());
+      paragraphs.forEach(paragraph => {
+        htmlContent += `<p style="font-size: 16px; line-height: 1.6; color: #374151; margin: 0 0 20px 0;">${paragraph}</p>`;
+      });
+    }
+    
+    htmlContent += '</div>';
+    
+    setParsedContent({ title, text });
+    onUpdate({ content: htmlContent });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="title">Rubrik</Label>
+        <Input
+          id="title"
+          value={parsedContent.title}
+          onChange={(e) => updateContent({ title: e.target.value })}
+          placeholder="Ange rubrik..."
+          className="mt-1"
+        />
+      </div>
+      
+      <div>
+        <Label htmlFor="text">Innehåll</Label>
+        <Textarea
+          id="text"
+          value={parsedContent.text}
+          onChange={(e) => updateContent({ text: e.target.value })}
+          rows={6}
+          className="mt-1"
+          placeholder="Skriv ditt innehåll här..."
+        />
+      </div>
+      
+      <div>
+        <Label>Justering</Label>
+        <div className="flex gap-1 mt-1">
+          {(["left", "center", "right"] as const).map((align) => {
+            const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight;
+            return (
+              <Button
+                key={align}
+                variant={element.alignment === align ? "default" : "outline"}
+                size="sm"
+                onClick={() => onUpdate({ alignment: align as "left" | "center" | "right" })}
+              >
+                <Icon className="h-4 w-4" />
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function EmailBuilder({ elements, onElementsChange }: EmailBuilderProps) {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
@@ -188,42 +281,10 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
         </div>
 
         {selectedElement.type === "text" && (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="content">Innehåll (HTML)</Label>
-              <Textarea
-                id="content"
-                value={selectedElement.content || ""}
-                onChange={(e) => {
-                  handleElementUpdate(selectedElement.id, { content: e.target.value });
-                }}
-                rows={8}
-                className="mt-1 font-mono text-sm"
-                placeholder="Skriv HTML-innehåll här..."
-              />
-              <div className="text-xs text-gray-500 mt-1">
-                Tips: Du kan använda HTML-taggar som &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;br&gt;, etc.
-              </div>
-            </div>
-            <div>
-              <Label>Justering</Label>
-              <div className="flex gap-1 mt-1">
-                {(["left", "center", "right"] as const).map((align) => {
-                  const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight;
-                  return (
-                    <Button
-                      key={align}
-                      variant={selectedElement.alignment === align ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handleElementUpdate(selectedElement.id, { alignment: align as "left" | "center" | "right" })}
-                    >
-                      <Icon className="h-4 w-4" />
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <TextEditor 
+            element={selectedElement}
+            onUpdate={(updates) => handleElementUpdate(selectedElement.id, updates)}
+          />
         )}
 
         {selectedElement.type === "image" && (
