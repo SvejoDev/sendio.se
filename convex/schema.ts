@@ -47,6 +47,9 @@ export default defineSchema({
     recipientCount: v.number(),
     totalCost: v.number(),
     createdAt: v.number(),
+    // Track one free test send state to avoid TOCTOU
+    testInProgress: v.optional(v.boolean()),
+    testConsumed: v.optional(v.boolean()),
   })
     .index("by_company", ["companyId"])
     .index("by_company_and_status", ["companyId", "status"])

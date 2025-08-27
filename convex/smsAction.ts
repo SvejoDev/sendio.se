@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { action } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { api } from "./_generated/api";
+import { randomBytes } from "node:crypto";
 
 function buildSmsText(baseMessage: string, token: string): string {
     return `${baseMessage}\n\nAvreg https://sendio.se/u/${token}`;
@@ -19,12 +20,27 @@ export const sendTest = action({
         const userId = await getAuthUserId(ctx);
         if (userId === null) return { success: false, error: "Unauthorized" };
 
-        const alreadyUsed = await ctx.runQuery(api.sms.hasUsedTest, {
+        // Fetch campaign and verify authorization
+        const campaign = await ctx.runQuery(api.sms.getCampaign, {
             campaignId: args.campaignId,
         });
-        if (alreadyUsed) return { success: false, error: "Test already used" };
+        if (!campaign) return { success: false, error: "Campaign not found" };
 
-        const token = Math.random().toString(36).slice(2, 12);
+        // Check if user owns the company that owns the campaign
+        const company = await ctx.runQuery(api.sms.getCompany, {
+            companyId: campaign.companyId,
+        });
+        if (!company || company.userId !== userId) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        // Atomically claim the single free test send to avoid TOCTOU
+        const claim = await ctx.runMutation(api.sms.claimTestSend, {
+            campaignId: args.campaignId,
+        });
+        if (!claim.claimed) return { success: false, error: "Test already used or in progress" };
+
+        const token = randomBytes(8).toString('base64url').slice(0, 10);
         const text = buildSmsText(args.message, token);
 
         try {
@@ -37,18 +53,16 @@ export const sendTest = action({
             const client = new Twilio(sid, authToken);
             await client.messages.create({ from, to: args.phoneNumber, body: text });
 
-            await ctx.runMutation(api.sms.markTestUsed, {
+            await ctx.runMutation(api.sms.finalizeTestSend, {
                 campaignId: args.campaignId,
                 phoneNumber: args.phoneNumber,
-                status: "sent",
             });
             return { success: true };
         } catch (e) {
             const msg = e instanceof Error ? e.message : "Unknown error";
-            await ctx.runMutation(api.sms.markTestUsed, {
+            await ctx.runMutation(api.sms.failTestSend, {
                 campaignId: args.campaignId,
                 phoneNumber: args.phoneNumber,
-                status: "failed",
                 errorMessage: msg,
             });
             return { success: false, error: msg };
