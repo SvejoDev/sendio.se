@@ -20,6 +20,7 @@ export function validateContacts(rows: Array<Array<string>>, mapping: Mapping) {
         const lastName = get(mapping.lastName);
         const email = get(mapping.email);
         const phone = get(mapping.phone);
+        const normalizedPhone = normalizePhoneForValidation(phone);
 
         if (!email && !phone) {
             errors.push({ rowIndex: i, reason: "Måste innehålla e‑post eller telefon" });
@@ -31,11 +32,10 @@ export function validateContacts(rows: Array<Array<string>>, mapping: Mapping) {
             continue;
         }
 
-        if (phone) {
-            const normalized = phone.replace(/\s+/g, "");
+        if (normalizedPhone) {
             const allowedPrefixes = ["+46", "+45", "+47", "+358", "+49"];
-            const hasAllowedPrefix = allowedPrefixes.some((p) => normalized.startsWith(p));
-            if (!hasAllowedPrefix || !isPossiblePhoneNumber(normalized)) {
+            const hasAllowedPrefix = allowedPrefixes.some((p) => normalizedPhone.startsWith(p));
+            if (!hasAllowedPrefix || !isPossiblePhoneNumber(normalizedPhone)) {
                 errors.push({ rowIndex: i, reason: "Ogiltigt internationellt telefonnummer" });
                 continue;
             }
@@ -45,11 +45,27 @@ export function validateContacts(rows: Array<Array<string>>, mapping: Mapping) {
             firstName: firstName || undefined,
             lastName: lastName || undefined,
             email: email || undefined,
-            phoneNumber: phone || undefined,
+            phoneNumber: normalizedPhone || undefined,
         });
     }
 
     return { valid, invalid: errors };
+}
+
+
+// Remove invisible formatting characters (zero-width, bidi controls, NBSP),
+// collapse to digits and a single leading plus if present anywhere.
+function normalizePhoneForValidation(input: string): string {
+    if (!input) return "";
+    const s = input
+        .normalize("NFKC")
+        // Remove common invisible/control chars that sneak in from spreadsheets or messaging apps
+        .replace(/[\u200B-\u200D\u2060\uFEFF\u00A0\u200E\u200F\u202A-\u202E]/g, "")
+        // Remove all whitespace
+        .replace(/\s+/g, "");
+    const hadPlus = s.includes("+");
+    const digits = s.replace(/\D/g, "");
+    return hadPlus && digits.length > 0 ? "+" + digits : digits;
 }
 
 
