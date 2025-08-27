@@ -111,8 +111,54 @@ export const applyUnsubscribeWithToken = mutation({
             unsubscribed: nextUnsubSms || nextUnsubEmail,
         });
 
-        // Log GDPR action(s)
+        // Persist to suppression list (Do-Not-Contact) for future re-imports
         const companyId = contact.companyId as Id<"companies">;
+        // Upsert by email
+        if (contact.email) {
+            const existing = await ctx.db
+                .query("suppressions")
+                .withIndex("by_company_and_email", (q) => q.eq("companyId", companyId).eq("email", contact.email as string))
+                .unique();
+            if (existing) {
+                await ctx.db.patch(existing._id, {
+                    smsOptOut: nextUnsubSms || existing.smsOptOut === true ? true : existing.smsOptOut,
+                    emailOptOut: nextUnsubEmail || existing.emailOptOut === true ? true : existing.emailOptOut,
+                });
+            } else {
+                await ctx.db.insert("suppressions", {
+                    companyId,
+                    email: contact.email as string,
+                    phoneNumber: undefined,
+                    smsOptOut: nextUnsubSms || false,
+                    emailOptOut: nextUnsubEmail || false,
+                    createdAt: Date.now(),
+                });
+            }
+        }
+        // Upsert by phone
+        if (contact.phoneNumber) {
+            const existing = await ctx.db
+                .query("suppressions")
+                .withIndex("by_company_and_phone", (q) => q.eq("companyId", companyId).eq("phoneNumber", contact.phoneNumber as string))
+                .unique();
+            if (existing) {
+                await ctx.db.patch(existing._id, {
+                    smsOptOut: nextUnsubSms || existing.smsOptOut === true ? true : existing.smsOptOut,
+                    emailOptOut: nextUnsubEmail || existing.emailOptOut === true ? true : existing.emailOptOut,
+                });
+            } else {
+                await ctx.db.insert("suppressions", {
+                    companyId,
+                    email: undefined,
+                    phoneNumber: contact.phoneNumber as string,
+                    smsOptOut: nextUnsubSms || false,
+                    emailOptOut: nextUnsubEmail || false,
+                    createdAt: Date.now(),
+                });
+            }
+        }
+
+        // Log GDPR action(s)
         const now = Date.now();
         if (args.sms) {
             await ctx.db.insert("gdprLogs", {

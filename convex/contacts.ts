@@ -35,40 +35,45 @@ export const replaceImport = mutation({
         }
         if (!company) throw new Error("Company not found");
 
-        // Load existing contacts into memory, keyed by email
+        // Load existing contacts into memory, keyed by email and phone
         const existingContacts = await ctx.db
             .query("contacts")
             .withIndex("by_company", (q) => q.eq("companyId", company._id))
             .collect();
 
-        const existingContactsMap = new Map<string, any>();
+        const existingByEmail = new Map<string, any>();
+        const existingByPhone = new Map<string, any>();
         for (const contact of existingContacts) {
-            if (contact.email) {
-                existingContactsMap.set(contact.email.toLowerCase(), contact);
-            }
+            if (contact.email) existingByEmail.set(contact.email.toLowerCase(), contact);
+            if (contact.phoneNumber) existingByPhone.set(contact.phoneNumber, contact);
         }
 
-        // Create a set of incoming contact emails for efficient lookup
+        // Create sets of incoming identifiers for deletion diff
         const incomingEmails = new Set<string>();
+        const incomingPhones = new Set<string>();
         for (const contact of args.contacts) {
             if (contact.email) {
                 incomingEmails.add(contact.email.toLowerCase());
+            }
+            if (contact.phoneNumber) {
+                incomingPhones.add(contact.phoneNumber);
             }
         }
 
         // Delete contacts that are no longer in the incoming list
         for (const contact of existingContacts) {
-            if (contact.email && !incomingEmails.has(contact.email.toLowerCase())) {
-                await ctx.db.delete(contact._id);
-            }
+            const missingByEmail = contact.email ? !incomingEmails.has(contact.email.toLowerCase()) : true;
+            const missingByPhone = contact.phoneNumber ? !incomingPhones.has(contact.phoneNumber) : true;
+            if (missingByEmail && missingByPhone) await ctx.db.delete(contact._id);
         }
 
         // Insert or update contacts from the incoming list
         for (const c of args.contacts) {
-            if (!c.email) continue; // Skip contacts without email
-
-            const emailKey = c.email.toLowerCase();
-            const existingContact = existingContactsMap.get(emailKey);
+            // Try to match by email or phone
+            const emailKey = c.email ? c.email.toLowerCase() : undefined;
+            const existingByE = emailKey ? existingByEmail.get(emailKey) : undefined;
+            const existingByP = c.phoneNumber ? existingByPhone.get(c.phoneNumber) : undefined;
+            const existingContact = existingByE ?? existingByP;
 
             if (existingContact) {
                 // Update existing contact, preserving unsubscribe status and createdAt
@@ -79,14 +84,40 @@ export const replaceImport = mutation({
                     // Preserve existing unsubscribed status and createdAt
                 });
             } else {
-                // Insert new contact
+                // Determine suppression flags from permanent suppression list
+                let smsOptOut = false;
+                let emailOptOut = false;
+                if (c.email) {
+                    const sup = await ctx.db
+                        .query("suppressions")
+                        .withIndex("by_company_and_email", (q) => q.eq("companyId", company._id).eq("email", c.email!.toLowerCase()))
+                        .unique();
+                    if (sup) {
+                        smsOptOut = sup.smsOptOut === true || smsOptOut;
+                        emailOptOut = sup.emailOptOut === true || emailOptOut;
+                    }
+                }
+                if (c.phoneNumber) {
+                    const sup = await ctx.db
+                        .query("suppressions")
+                        .withIndex("by_company_and_phone", (q) => q.eq("companyId", company._id).eq("phoneNumber", c.phoneNumber!))
+                        .unique();
+                    if (sup) {
+                        smsOptOut = sup.smsOptOut === true || smsOptOut;
+                        emailOptOut = sup.emailOptOut === true || emailOptOut;
+                    }
+                }
+
+                // Insert new contact honoring suppression
                 await ctx.db.insert("contacts", {
                     companyId: company._id,
                     firstName: c.firstName,
                     lastName: c.lastName,
                     email: c.email,
                     phoneNumber: c.phoneNumber,
-                    unsubscribed: false,
+                    unsubscribedSms: smsOptOut || undefined,
+                    unsubscribedEmail: emailOptOut || undefined,
+                    unsubscribed: (smsOptOut || emailOptOut) ? true : false,
                     createdAt: Date.now(),
                 });
             }

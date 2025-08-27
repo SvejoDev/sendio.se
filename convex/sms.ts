@@ -190,6 +190,34 @@ export const failTestSend = mutation({
 // Needed for type-safe api references
 import { api } from "./_generated/api";
 
+// Server-side check: is a phone number suppressed/unsubscribed for this company?
+export const isSuppressedSms = query({
+    args: { companyId: v.id("companies"), phoneNumber: v.string() },
+    returns: v.boolean(),
+    handler: async (ctx, args) => {
+        // Check permanent suppression table first (authoritative)
+        const sup = await ctx.db
+            .query("suppressions")
+            .withIndex("by_company_and_phone", (q) =>
+                q.eq("companyId", args.companyId).eq("phoneNumber", args.phoneNumber),
+            )
+            .unique();
+        if (sup && sup.smsOptOut === true) return true;
+
+        // Fallback: check contacts with this phone for unsubscribedSms within the company
+        const byPhone = await ctx.db
+            .query("contacts")
+            .withIndex("by_phone", (q) => q.eq("phoneNumber", args.phoneNumber))
+            .collect();
+        for (const c of byPhone) {
+            if (c.companyId === args.companyId && (c.unsubscribedSms === true || c.unsubscribed === true)) {
+                return true;
+            }
+        }
+        return false;
+    },
+});
+
 export const ensureDraftCampaign = mutation({
     args: { type: v.union(v.literal("sms"), v.literal("email")) },
     returns: v.id("campaigns"),

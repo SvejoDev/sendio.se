@@ -34,6 +34,15 @@ export const sendTest = action({
             return { success: false, error: "Unauthorized" };
         }
 
+        // Enforce server-side suppression at send time for tests
+        const blocked = await ctx.runQuery(api.sms.isSuppressedSms, {
+            companyId: campaign.companyId,
+            phoneNumber: args.phoneNumber,
+        });
+        if (blocked) {
+            return { success: false, error: "Recipient is unsubscribed (SMS)" };
+        }
+
         // Atomically claim the single free test send to avoid TOCTOU
         const claim = await ctx.runMutation(api.sms.claimTestSend, {
             campaignId: args.campaignId,
