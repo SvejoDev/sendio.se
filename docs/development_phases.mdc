@@ -139,7 +139,7 @@ campaigns: {
 
 ## 📋 Phase 2: Contact Management
 
-### Task 2.1: Contact Import System
+### Task 2.1: Contact Import System ✅
 
 **Files to create:**
 
@@ -243,7 +243,7 @@ campaigns: {
 
 ## 📋 Phase 3: SMS Campaign Builder
 
-### Task 3.1: SMS Campaign Interface
+### Task 3.1: SMS Campaign Interface ✅
 
 **Files to create:**
 
@@ -313,7 +313,7 @@ campaigns: {
 
 - ✅ `npm run build` passes with no TypeScript or lint errors
 
-### Task 3.3: SMS Testing — ✅ Completed
+### Task 3.3: SMS Testing ✅
 
 **Files to create:**
 
@@ -352,30 +352,46 @@ Status: Implemented `TestSender` UI, Convex `smsAction.sendTest` with 5-test enf
 
 ## 📋 Phase 4: Email Campaign Builder
 
-### Task 4.1: Email Template System
+### Task 4.1: Email Template System ✅
 
-**Files to create:**
+**Files created:**
 
-- `src/pages/campaigns/CreateEmail.tsx` - Email campaign creation
-- `src/components/email/TemplateSelector.tsx` - Pre-made templates
-- `src/components/email/EmailBuilder.tsx` - Drag & drop builder
-- `src/components/email/ElementLibrary.tsx` - Available elements
-- `src/data/emailTemplates.ts` - Template definitions
+- `app/campaigns/email/page.tsx` - Email campaign creation page (Next.js App Router)
+- `components/email/TemplateSelector.tsx` - Pre-made templates with preview functionality
+- `components/email/EmailBuilder.tsx` - Drag & drop email builder with real-time editing
+- `components/email/ElementLibrary.tsx` - Available email elements and quick layouts
+- `data/emailTemplates.ts` - Professional email template definitions with TypeScript
 
-**Requirements:**
+**Completed features:**
 
-- 3-4 pre-made email templates
-- Template preview thumbnails
-- Template selection and customization
-- Responsive email templates
-- Professional business designs
+- 4 professional email templates (Newsletter, Promotional, Announcement, Event invitation)
+- Interactive template selector with thumbnails and modal previews
+- Drag & drop email builder with real-time preview
+- Element library with text, images, buttons, dividers, and social media components
+- Mobile and desktop email preview modes
+- Element editing with styling controls (alignment, colors, text content)
+- GDPR-compliant email structure with automatic unsubscribe footer
+- Variable support for {first_name} and {last_name} personalization
+- Responsive email templates designed for professional Swedish business use
 
-**Templates to create:**
+**Templates implemented:**
 
-1. Newsletter template (header, content blocks, footer)
-2. Promotional template (hero image, CTA, product showcase)
-3. Announcement template (simple text with branding)
-4. Event invitation template (date, location, RSVP)
+1. **Modern Newsletter** - Clean design for regular communication with header, content blocks, and CTA
+2. **Campaign Promotion** - Sales-focused template with discount banners, product showcase, and urgency elements  
+3. **Simple Announcement** - Minimalist template for important updates and company news
+4. **Event Invitation** - Professional event template with date, location, agenda, and RSVP functionality
+
+**Technical implementation:**
+
+- TypeScript interfaces for EmailElement and EmailTemplate with proper typing
+- Comprehensive element type system (text, image, button, divider, social)
+- Real-time preview with mobile/desktop responsive design switching
+- Element manipulation (add, edit, delete, reorder) with intuitive UI controls
+- Color picker and alignment controls for visual customization
+- Professional Swedish business language and GDPR compliance built-in
+- Next.js 15 App Router structure with shadcn/ui components
+
+**Build status:** ✅ All components compile successfully with no TypeScript or ESLint errors
 
 ### Task 4.2: Email Builder Elements
 
@@ -489,485 +505,6 @@ Status: Implemented `TestSender` UI, Convex `smsAction.sendTest` with 5-test enf
   - `MAILGUN_BASE_URL=api.eu.mailgun.net`
 - API endpoints:
   - `POST /api/webhooks/mailgun` in `convex/http.ts` for events
-
-### Task 6.2: Campaign Scheduling
-
-**Files to create:**
-
-- `src/components/campaigns/Scheduler.tsx` - Scheduling interface
-- `src/lib/scheduler.ts` - Scheduling logic
-- `convex/cron.ts` - Scheduled campaign processing
-
-**Requirements:**
-
-- Schedule campaigns up to 30 days ahead
-- User timezone handling
-- Hourly scheduling granularity
-- Schedule modification and cancellation
-- Automated sending at scheduled time
-- Cron job processing with Convex
-
-## 📋 Phase 7: Analytics Dashboard
-
-### Task 7.1: Webhook Processing
-
-**Files to create:**
-
-- `src/api/webhooks/twilio.ts` - Twilio webhook handler
-- `src/api/webhooks/mailgun.ts` - Mailgun webhook handler
-- `convex/analytics.ts` - Analytics data processing
-- `src/lib/webhookProcessing.ts` - Webhook validation and processing
-
-**Requirements:**
-
-- Process Twilio SMS delivery webhooks
-- Process Mailgun email tracking webhooks
-- Webhook signature verification
-- Real-time analytics updates
-- Event logging and storage
-
-### Task 7.2: Analytics Dashboard
-
-**Files to create:**
-
-- `src/pages/analytics/Dashboard.tsx` - Main analytics view
-- `src/components/analytics/CampaignStats.tsx` - Campaign statistics
-- `src/components/analytics/Charts.tsx` - Data visualization
-- `src/components/analytics/ExportData.tsx` - Data export functionality
-
-**Requirements:**
-
-- Real-time campaign statistics
-- SMS metrics: sent, delivered, failed
-- Email metrics: sent, delivered, opened, clicked
-- Charts and graphs for data visualization
-- Historical data views
-- Export analytics data
-
-## 📋 Phase 8: Final Polish
-
-### Task 8.1: Error Handling and UX
-
-**Files to create:**
-
-- `src/components/ui/LoadingStates.tsx` - Loading components
-- `src/components/ui/ErrorBoundary.tsx` - Error handling
-- `src/components/ui/ToastNotifications.tsx` - User feedback
-- `src/lib/errorHandling.ts` - Error processing
-
-**Requirements:**
-
-- Consistent loading states throughout app
-- Error boundaries for component failures
-- Toast notifications for user actions
-- Graceful error handling and recovery
-- User-friendly error messages
-
-### Task 8.2: Mobile Optimization
-
-**Files to modify:** All components for mobile responsiveness
-
-**Requirements:**
-
-- Mobile-first responsive design
-- Touch-friendly interfaces
-- Optimized mobile navigation
-- Mobile campaign creation workflow
-- Mobile analytics viewing
-
-### Task 8.3: Performance Optimization
-
-**Requirements:**
-
-- Code splitting and lazy loading
-- Image optimization
-- Bundle size optimization
-- Loading performance improvements
-- Real-time updates optimization
-
-This task structure provides clear, actionable development steps that build upon the existing Convex Auth starter kit while implementing all the Sendio-specific features discussed in your requirements.
-
-# Development Tasks - Sendio Marketing Platform
-
-## 📋 Phase 1: Foundation & Landing Page
-
-### Task 1.1: Landing Page Creation
-
-**Files to create:**
-
-- `src/pages/LandingPage.tsx` - Main landing page component
-- `src/components/landing/Hero.tsx` - Hero section with value proposition
-- `src/components/landing/Features.tsx` - Key features showcase
-- `src/components/landing/Pricing.tsx` - Transparent pricing display
-- `src/components/landing/HowItWorks.tsx` - Step-by-step process
-- `src/components/landing/Navigation.tsx` - Landing page navigation
-
-**Requirements:**
-
-- Hero section with "Marketing Without Monthly Subscriptions" headline
-- Features grid showcasing no subscriptions, instant pricing, GDPR compliance
-- Pricing section with SMS/Email rates for all supported countries
-- How it works: 5 steps from upload to analytics
-- Clean, Scandinavian design with mobile-first approach
-- Call-to-action buttons leading to registration
-
-**Design Specifications:**
-
-- Use Tailwind CSS with custom color palette
-- Responsive design (mobile, tablet, desktop)
-- Smooth scroll navigation between sections
-- Professional typography (Inter font family)
-- Trust indicators (GDPR compliant, Swedish company)
-
-### Task 1.2: Authentication Integration
-
-**Files to modify:**
-
-- `src/App.tsx` - Route setup and auth state management
-- `src/Layout.tsx` - Navigation updates for authenticated users
-- `src/auth/SignInWithPassword.tsx` - Customize for Sendio branding
-- `src/components/UserMenu.tsx` - Add logout and profile options
-
-**Files to create:**
-
-- `src/pages/Dashboard.tsx` - Main dashboard after login
-- `src/components/auth/RegisterForm.tsx` - Custom registration with company details
-- `src/components/navigation/AuthenticatedNav.tsx` - Navigation for logged-in users
-
-**Requirements:**
-
-- Landing page for non-authenticated users
-- Registration form with company name and GDPR consent
-- Dashboard redirect after successful login
-- User menu with logout option
-- Protect dashboard routes from non-authenticated access
-- Clean transition between landing page and dashboard
-
-### Task 1.3: Database Schema Extension
-
-**Files to modify:**
-
-- `convex/schema.ts` - Add Sendio-specific tables
-
-**New tables to add:**
-
-```typescript
-// Company profiles (extends user data)
-companies: {
-  userId: v.id("users"),
-  companyName: v.string(),
-  companyLogo: v.optional(v.string()),
-  createdAt: v.number(),
-}
-
-// Contact lists
-contacts: {
-  companyId: v.id("companies"),
-  firstName: v.optional(v.string()),
-  lastName: v.optional(v.string()),
-  email: v.optional(v.string()),
-  phoneNumber: v.optional(v.string()),
-  unsubscribed: v.boolean(),
-  createdAt: v.number(),
-}
-
-// Campaigns
-campaigns: {
-  companyId: v.id("companies"),
-  name: v.string(),
-  type: v.union(v.literal("sms"), v.literal("email"), v.literal("both")),
-  status: v.union(v.literal("draft"), v.literal("paid"), v.literal("sent")),
-  content: v.object({}), // SMS message or email content
-  recipientCount: v.number(),
-  totalCost: v.number(),
-  createdAt: v.number(),
-}
-```
-
-**Requirements:**
-
-- Maintain existing auth tables (don't modify)
-- Add proper indexes for performance
-- Include GDPR compliance fields (unsubscribed status)
-- Timestamp all records for audit trails
-
-### Task 1.4: GDPR Legal Pages
-
-**Files to create:**
-
-- `src/pages/legal/DPA.tsx` - Data Processing Agreement
-- `src/pages/legal/PrivacyPolicy.tsx` - Privacy Policy
-- `src/components/gdpr/ConsentModal.tsx` - GDPR consent component
-- `src/components/legal/Footer.tsx` - Footer with legal links
-
-**Requirements:**
-
-- DPA page explaining data processor relationship
-- Privacy policy covering data handling
-- Consent modal for contact imports
-- Footer with accessible legal links
-- Swedish language compliance text
-- Professional legal document styling
-
-## 📋 Phase 2: Contact Management
-
-### Task 2.1: Contact Import System
-
-**Files to create:**
-
-- `src/pages/contacts/Import.tsx` - File upload interface
-- `src/components/contacts/FileUploader.tsx` - Drag & drop upload
-- `src/components/contacts/ColumnMapper.tsx` - CSV/Excel column mapping
-- `src/components/contacts/ValidationResults.tsx` - Import validation display
-- `src/lib/fileProcessing.ts` - File parsing and validation logic
-
-**Requirements:**
-
-- Support CSV and Excel file formats
-- Drag & drop file upload with progress indicator
-- Column mapping interface for firstName, lastName, email, phone
-- Real-time validation (email format, phone format)
-- Error reporting for invalid contacts
-- Requirement: at least email OR phone for each contact
-- New import completely replaces existing contacts, but preserves unsubscribe status using the suppression list. Matching occurs by email and/or phone; new inserts consult suppression to set `unsubscribedSms`/`unsubscribedEmail` and aggregate `unsubscribed`.
-
-**Validation Rules:**
-
-- Email: Valid email format if provided (email OR phone required)
-- Phone: Valid international format (+46, +45, +47, +358, +49) if provided (email OR phone required)
-- Names: Optional but useful for personalization
-- Duplicates: Show count but import anyway (new list replaces old)
-
-### Task 2.2: Contact List Management
-
-**Files to create:**
-
-- `src/pages/contacts/ContactList.tsx` - Main contact list view
-- `src/components/contacts/ContactTable.tsx` - Data table with actions
-- `src/components/contacts/ContactForm.tsx` - Add/edit contact form
-- `src/components/contacts/DeleteConfirmation.tsx` - GDPR delete modal
-- `src/components/contacts/ExportContacts.tsx` - Data export functionality
-
-**Requirements:**
-
-- Searchable and filterable contact table
-- Add individual contacts manually
-- Edit existing contacts
-- Delete contacts with GDPR confirmation
-- Export contact data (Right to Access)
-- Show contact validation status
-- Pagination for large contact lists
-
-### Task 2.3: Unsubscribe System
-
-**Files to create:**
-
-- `src/pages/unsubscribe/[token].tsx` - One-click unsubscribe page
-- `src/lib/unsubscribe.ts` - Token generation and validation
-- `convex/unsubscribe.ts` - Unsubscribe operations
-- `src/components/unsubscribe/UnsubscribeForm.tsx` - Simple unsubscribe interface
-
-**Requirements:**
-
-- Generate unique tokens for each campaign/contact
-- One-click unsubscribe (no login required)
-- Update contact unsubscribed status
-- Preserve unsubscribe status across imports
-- Simple confirmation page
-- Log unsubscribe events for compliance
-
-## 📋 Phase 3: SMS Campaign Builder
-
-### Task 3.1: SMS Campaign Interface
-
-**Files to create:**
-
-- `src/pages/campaigns/CreateSMS.tsx` - SMS campaign creation
-- `src/components/sms/MessageComposer.tsx` - SMS text input
-- `src/components/sms/PhonePreview.tsx` - Mobile phone mockup
-- `src/components/sms/CharacterCounter.tsx` - Real-time character counting
-- `src/components/sms/SenderIdInput.tsx` - Custom sender ID input
-- `src/components/campaigns/VariableInserter.tsx` - Variable insertion tool
-
-**Requirements:**
-
-- Text area for SMS message composition
-- Real-time character counter (adjusts for AVREG link)
-- Mobile phone preview showing exact message appearance
-- Variable insertion for {first_name} and {last_name}
-- Custom sender ID input with validation (11 chars, alphanumeric)
-- AVREG link preview (auto-appended, user cannot remove)
-
-**Character Calculation:**
-
-- Twilio limit: 1600 characters
-- AVREG template: "\\n\\nAvreg https://sendio.se/unsubscribe/uuid"
-- User available: 1600 - AVREG length = ~1540 characters
-
-### Task 3.2: SMS Cost Calculation
-
-**Files to create:**
-
-- `src/lib/pricing.ts` - Pricing calculation logic
-- `src/components/campaigns/CostBreakdown.tsx` - Cost display
-- `src/hooks/usePricing.ts` - Real-time pricing calculations
-- `src/lib/countryDetection.ts` - Phone number country detection
-
-**Requirements:**
-
-- Detect country from phone number prefix
-- Calculate cost per SMS by country
-- Real-time cost updates as user types or selects contacts
-- Display total cost and per-SMS breakdown
-- Handle multiple countries in contact list
-- Show cost in Swedish Krona (SEK)
-
-**Pricing Structure:**
-
-- Sweden (+46): $0.12 per SMS
-- Denmark (+45): $0.11 per SMS
-- Norway (+47): $0.13 per SMS
-- Finland (+358): $0.17 per SMS
-- Germany (+49): $0.22 per SMS
-
-### Task 3.3: SMS Testing
-
-**Files to create:**
-
-- `src/components/sms/TestSender.tsx` - Test SMS functionality
-- `src/lib/twilio.ts` - Twilio SMS integration
-- `convex/sms.ts` - SMS operations and logging
-
-**Requirements:**
-
-- Send test SMS to user's own number
-- Limit: 1 free test per campaign
-- Include AVREG link in test SMS
-- Variable replacement in test message
-- Success/failure feedback
-- Log test sends for analytics
-
-## 📋 Phase 4: Email Campaign Builder
-
-### Task 4.1: Email Template System
-
-**Files to create:**
-
-- `src/pages/campaigns/CreateEmail.tsx` - Email campaign creation
-- `src/components/email/TemplateSelector.tsx` - Pre-made templates
-- `src/components/email/EmailBuilder.tsx` - Drag & drop builder
-- `src/components/email/ElementLibrary.tsx` - Available elements
-- `src/data/emailTemplates.ts` - Template definitions
-
-**Requirements:**
-
-- 3-4 pre-made email templates
-- Template preview thumbnails
-- Template selection and customization
-- Responsive email templates
-- Professional business designs
-
-**Templates to create:**
-
-1. Newsletter template (header, content blocks, footer)
-2. Promotional template (hero image, CTA, product showcase)
-3. Announcement template (simple text with branding)
-4. Event invitation template (date, location, RSVP)
-
-### Task 4.2: Email Builder Elements
-
-**Files to create:**
-
-- `src/components/email/elements/TextElement.tsx` - Text with styling
-- `src/components/email/elements/ImageElement.tsx` - Image upload/display
-- `src/components/email/elements/ButtonElement.tsx` - CTA buttons
-- `src/components/email/elements/DividerElement.tsx` - Visual dividers
-- `src/components/email/elements/SocialElement.tsx` - Social media links
-- `src/components/email/StylePanel.tsx` - Element styling controls
-
-**Requirements:**
-
-- Drag & drop interface for element arrangement
-- Text elements with font, size, color controls
-- Image upload with Convex file storage
-- Button elements with customizable styling and URLs
-- Trackable links for analytics
-- Social media icons and links
-
-### Task 4.3: Email Preview and Variables
-
-**Files to create:**
-
-- `src/components/email/EmailPreview.tsx` - Desktop email preview
-- `src/components/email/SubjectLineEditor.tsx` - Subject with variables
-- `src/components/email/VariablePreview.tsx` - Variable replacement preview
-
-**Requirements:**
-
-- Desktop email preview modal
-- Subject line editor with variable support
-- Variable replacement preview using sample contact
-- Mobile email preview
-- Send test email functionality
-- HTML email generation
-
-## 📋 Phase 5: Payment Integration
-
-### Task 5.1: Stripe Payment Setup
-
-**Files to create:**
-
-- `src/lib/stripe.ts` - Stripe client configuration
-- `src/components/payment/PaymentForm.tsx` - Stripe Elements form
-- `src/pages/campaigns/Payment.tsx` - Payment page
-- `src/api/payment.ts` - Payment intent creation
-- `convex/payments.ts` - Payment operations
-
-**Requirements:**
-
-- Stripe Elements integration
-- Swedish Krona (SEK) currency
-- Payment intent creation with campaign metadata
-- Payment success/failure handling
-- Webhook processing for payment confirmation
-- Automatic campaign sending after payment
-
-### Task 5.2: Campaign Cost Summary
-
-**Files to create:**
-
-- `src/components/campaigns/CampaignSummary.tsx` - Final campaign overview
-- `src/components/campaigns/PaymentBreakdown.tsx` - Detailed cost breakdown
-
-**Requirements:**
-
-- Complete campaign summary before payment
-- Cost breakdown by SMS countries and email count
-- Campaign content preview
-- Recipient count and targeting
-- Payment button with final cost
-- Terms and conditions acceptance
-
-## 📋 Phase 6: Campaign Sending
-
-### Task 6.1: Campaign Processing
-
-**Files to create:**
-
-- `src/lib/campaignProcessor.ts` - Campaign execution logic
-- `src/lib/mailgun.ts` - Mailgun email integration
-- `convex/campaigns.ts` - Campaign operations
-- `src/components/campaigns/SendingProgress.tsx` - Progress tracking
-
-**Requirements:**
-
-- Process campaigns after successful payment
-- Batch sending for large contact lists
-- Rate limiting for API calls
-- Error handling and retry logic
-- Progress tracking and user feedback
-- Automatic AVREG link insertion for SMS
-- Automatic unsubscribe footer for emails
 
 ### Task 6.2: Campaign Scheduling
 
