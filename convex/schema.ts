@@ -47,6 +47,9 @@ export default defineSchema({
     recipientCount: v.number(),
     totalCost: v.number(),
     createdAt: v.number(),
+    // Track one free test send state to avoid TOCTOU
+    testInProgress: v.optional(v.boolean()),
+    testConsumed: v.optional(v.boolean()),
   })
     .index("by_company", ["companyId"])
     .index("by_company_and_status", ["companyId", "status"])
@@ -56,7 +59,7 @@ export default defineSchema({
   // Campaign analytics and tracking
   campaignAnalytics: defineTable({
     campaignId: v.id("campaigns"),
-    contactId: v.id("contacts"),
+    contactId: v.optional(v.id("contacts")),
     type: v.union(v.literal("sms"), v.literal("email")),
     status: v.union(
       v.literal("sent"),
@@ -72,6 +75,8 @@ export default defineSchema({
     openedAt: v.optional(v.number()),
     clickedAt: v.optional(v.number()),
     errorMessage: v.optional(v.string()),
+    // Mark analytics rows originating from free test sends
+    isTest: v.optional(v.boolean()),
   })
     .index("by_campaign", ["campaignId"])
     .index("by_campaign_and_type", ["campaignId", "type"])
