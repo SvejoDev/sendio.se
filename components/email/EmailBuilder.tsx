@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,28 +54,76 @@ function TextEditor({ element, onUpdate }: TextEditorProps) {
     return { title, text };
   });
 
-  const updateContent = (updates: { title?: string; text?: string }) => {
-    const { title, text } = { ...parsedContent, ...updates };
+  // Debounced update to prevent focus loss
+  const debouncedUpdate = useRef<NodeJS.Timeout | null>(null);
+
+  const updateContent = useCallback((updates: { title?: string; text?: string }) => {
+    const newContent = { ...parsedContent, ...updates };
+    setParsedContent(newContent);
     
-    // Reconstruct HTML content
-    let htmlContent = '<div style="padding: 20px;">';
-    
-    if (title) {
-      htmlContent += `<h3 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 12px 0;">${title}</h3>`;
+    // Clear existing timeout
+    if (debouncedUpdate.current) {
+      clearTimeout(debouncedUpdate.current);
     }
     
-    if (text) {
-      const paragraphs = text.split('\n').filter(p => p.trim());
-      paragraphs.forEach(paragraph => {
-        htmlContent += `<p style="font-size: 16px; line-height: 1.6; color: #374151; margin: 0 0 20px 0;">${paragraph}</p>`;
-      });
-    }
-    
-    htmlContent += '</div>';
-    
-    setParsedContent({ title, text });
-    onUpdate({ content: htmlContent });
-  };
+    // Debounced HTML update
+    debouncedUpdate.current = setTimeout(() => {
+      const { title, text } = newContent;
+      const originalContent = element.content || "";
+      
+      // Parse original HTML to preserve structure and styling
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(originalContent, 'text/html');
+      
+      // Update title while preserving original styling
+      const titleElement = doc.querySelector('h1, h2, h3');
+      if (titleElement && title) {
+        titleElement.textContent = title;
+      } else if (title && !titleElement) {
+        // Create new title element with original template styling
+        const container = doc.querySelector('div') || doc.body;
+        const newTitle = doc.createElement('h2');
+        newTitle.textContent = title;
+        newTitle.setAttribute('style', 'font-size: 24px; font-weight: 600; color: #1f2937; margin: 0 0 16px 0;');
+        container.insertBefore(newTitle, container.firstChild);
+      } else if (!title && titleElement) {
+        // Remove title if empty
+        titleElement.remove();
+      }
+      
+      // Update text content while preserving original paragraph styling
+      const paragraphs = doc.querySelectorAll('p');
+      const textLines = text.split('\n').filter(line => line.trim());
+      
+      // Remove existing paragraphs
+      paragraphs.forEach(p => p.remove());
+      
+      // Add new paragraphs with preserved styling
+      if (textLines.length > 0) {
+        const container = doc.querySelector('div') || doc.body;
+        textLines.forEach(line => {
+          const p = doc.createElement('p');
+          p.textContent = line;
+          // Preserve original paragraph styling or use template default
+          p.setAttribute('style', 'font-size: 16px; line-height: 1.6; color: #374151; margin: 0;');
+          container.appendChild(p);
+        });
+      }
+      
+      // Get the updated HTML content
+      const updatedContent = doc.querySelector('div')?.outerHTML || originalContent;
+      onUpdate({ content: updatedContent });
+    }, 300);
+  }, [parsedContent, onUpdate, element.content]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debouncedUpdate.current) {
+        clearTimeout(debouncedUpdate.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -439,7 +487,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
   };
 
   return (
-    <div className="flex flex-row gap-4 h-full max-h-[calc(100vh-240px)]">
+    <div className="flex flex-row gap-4 h-[calc(100vh-240px)] max-h-[calc(100vh-240px)]">
       {/* Element Library */}
       <div className="w-72 flex-shrink-0">
         <ElementLibrary onElementAdd={handleElementAdd} />
@@ -447,7 +495,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
 
       {/* Email Preview */}
       <div className="flex-1 min-w-0">
-        <Card className="h-full max-h-[calc(100vh-240px)]">
+        <Card className="h-[calc(100vh-240px)] max-h-[calc(100vh-240px)]">
           <div className="p-4 border-b">
             <div className="flex items-center justify-between">
               <h3 className="font-medium">Förhandsvisning</h3>
@@ -559,7 +607,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
 
       {/* Element Settings */}
       <div className="w-72 flex-shrink-0">
-        <Card className="h-full max-h-[calc(100vh-240px)]">
+        <Card className="h-[calc(100vh-240px)] max-h-[calc(100vh-240px)]">
           <div className="p-4 border-b">
             <h3 className="font-medium">Inställningar</h3>
           </div>

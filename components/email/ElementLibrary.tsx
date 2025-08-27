@@ -216,7 +216,7 @@ export default function ElementLibrary({ onElementAdd }: ElementLibraryProps) {
                     layout.elements.forEach((element, index) => {
                       setTimeout(() => {
                         handleAddElement(element);
-                      }, index * 100);
+                      }, index * 200);
                     });
                   }}
                 >
