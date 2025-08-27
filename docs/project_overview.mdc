@@ -81,6 +81,7 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 - **Required Fields**: Either phone OR email (both optional but at least one)
 - **Optional Fields**: firstName, lastName for personalization
 - **Import Behavior**: New import completely replaces old contact list, while a permanent suppression list (Do‑Not‑Contact) preserves unsubscribes across imports (matched by email and phone).
+- **"Ny kundlista" Flow (Implemented)**: From `contacts` page, user can click "Ny kundlista" which navigates to `contacts/import` after a confirmation dialog. The import UI clearly states that the new file will replace all existing contacts. The backend mutation `contacts.replaceImport` performs a diff: removes contacts not present in the new file, updates matches, and inserts new ones. Suppressions are looked up and applied to new contacts so unsubscribed recipients remain unsubscribed.
 - **Server-side Enforcement**: Test SMS are blocked server‑side if a number is unsubscribed, even if the client forgets to filter.
 - **Manual Management**: Add, edit, delete contacts individually
 - **Validation**: Real-time email/phone validation with error reporting
@@ -170,7 +171,7 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 - **Mandatory AVREG**: Every SMS ends with "Avreg {unique_link}"
 - **Auto-append**: User cannot remove unsubscribe link
 - **One-click**: Simple unsubscribe landing page
-- **Permanent Suppression**: Unsubscribes are stored in a suppression list and applied on future imports and sends
+- **Permanent Suppression**: Unsubscribes are stored in a suppression list and applied on future imports and sends. During replace import, suppression flags are applied to incoming contacts automatically.
 
 ### Email GDPR Requirements
 

@@ -6,6 +6,7 @@ import { useState } from "react";
 import FileUploader from "@/components/contacts/FileUploader";
 import ColumnMapper from "@/components/contacts/ColumnMapper";
 import ValidationResults from "@/components/contacts/ValidationResults";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function ImportContactsPage() {
   const [step, setStep] = useState<"upload" | "map" | "validate">("upload");
@@ -27,6 +28,15 @@ export default function ImportContactsPage() {
           <CardTitle>Importera kontakter</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          <Alert>
+            <AlertTitle>Ny kundlista</AlertTitle>
+            <AlertDescription>
+              Denna import ersätter hela din nuvarande kontaktlista. Alla
+              kontakter som inte finns i den nya filen kommer att tas bort.
+              Avregistreringar bevaras via suppression‑listan, så mottagare som
+              tidigare avregistrerat sig förblir avregistrerade.
+            </AlertDescription>
+          </Alert>
           <Tabs value={step} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="upload">1. Ladda upp</TabsTrigger>

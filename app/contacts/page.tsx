@@ -5,6 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
 import ContactTable from "@/components/contacts/ContactTable";
 import ContactForm from "@/components/contacts/ContactForm";
 import DeleteConfirmation from "@/components/contacts/DeleteConfirmation";
@@ -16,6 +28,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 type UnsubFilter = "all" | "only" | "active";
 
 export default function ContactsPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [unsubFilter, setUnsubFilter] = useState<UnsubFilter>("all");
   const [pageSize, setPageSize] = useState(20);
@@ -68,6 +81,31 @@ export default function ContactsPage() {
               >
                 Lägg till kontakt
               </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">Ny kundlista</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Ersätt hela kontaktlistan?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Detta startar en ny import och raderar alla nuvarande
+                      kontakter när den nya filen laddas upp. Avregistreringar
+                      (suppression) bevaras automatiskt. Vill du fortsätta?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => router.push("/contacts/import")}
+                    >
+                      Fortsätt
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </CardHeader>

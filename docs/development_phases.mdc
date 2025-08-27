@@ -203,6 +203,9 @@ campaigns: {
 
 - Efter lyckad import i `app/contacts/import/page.tsx` omdirigeras användaren automatiskt till `/contacts` för en sömlös övergång.
 
+- Lagt till "Ny kundlista"‑knapp på `app/contacts/page.tsx` med AlertDialog‑bekräftelse som leder till `/contacts/import` för att starta nytt ersättningsflöde.
+- Import‑sidan visar en informativ Alert som tydligt förklarar att importen ersätter hela listan och att avregistreringar bevaras via suppression‑listan.
+
 **Build:**
 
 - Production build passerar utan fel (Next 15, TS/ESLint clean)
