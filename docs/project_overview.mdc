@@ -92,7 +92,9 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 - **Custom Sender ID**: Alphanumeric sender (11 chars max)
 - **Variables**: {first_name}, {last_name} replacement
 - **AVREG Compliance**: Mandatory "Avreg {link}" auto-appended (Swedish GDPR)
-- **Test SMS**: Free test to user's number (1 per campaign)
+- **Test SMS**: Up to 5 tests per campaign (per campaign)
+- **Emoji Handling**: Auto-detect UCS-2; emojis preserved. Uses numeric sender automatically when emojis are present to maximize deliverability
+- **Phone Normalization**: Local Swedish numbers like `073...` normalized to E.164 `+46...` before sending
 - **Server-side Suppression Check**: System prevents sending test SMS to unsubscribed numbers (company scope)
 - **Character Calculation**: Twilio-accurate segments (GSM-7 160/153, UCS-2 70/67) including auto-appended AVREG `/u/{token}`
 - **Emoji Support**: Quick insert of common emojis
@@ -207,6 +209,9 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 - **Features**: Custom sender ID, delivery webhooks, country pricing
 - **Rate Limiting**: 1 SMS per second (basic account)
 - **Webhooks**: Delivery status tracking
+- **Encoding**: GSM‑7 vs UCS‑2 detection. Emojis/non‑GSM force UCS‑2 (70/67 char segments) and we fall back to numeric sender for deliverability
+- **Number Formatting**: Inputs normalized to E.164 (default +46 for local 0‑prefixed or bare digits)
+- **Optional**: Messaging Service SID for routing/alphanumeric handling
 
 ### Mailgun Email
 
@@ -242,6 +247,40 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 - **APIs**: Twilio, Mailgun, Stripe accounts configured
 - **Legal**: DPA and Privacy Policy prepared
 - **Design**: Complete UI/UX specifications ready
+
+## ✅ Implementation status and required environment variables
+
+- **Test SMS (Twilio) — Implemented**
+  - **Files**: `convex/smsAction.ts` (action `sendTest`), `convex/sms.ts` (queries/mutations for test tracking and suppression), `components/sms/TestSender.tsx`
+  - **HTTP endpoints**: none required for sending; delivery webhook pending
+  - **Env to add**: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `TWILIO_MESSAGING_SERVICE_SID` (optional)
+
+- **Real SMS campaign sending — Not implemented yet**
+  - **Planned files**: `src/lib/twilio.ts`, `convex/campaigns.ts` (sending pipeline), `convex/http.ts` route `POST /api/webhooks/twilio` (delivery events)
+  - **Env**: reuse Twilio vars above
+
+- **Email campaigns (Mailgun) — Not implemented yet**
+  - **Planned files**: `src/lib/mailgun.ts`, `convex/campaigns.ts`, `convex/http.ts` route `POST /api/webhooks/mailgun`
+  - **Env to add**: `MAILGUN_API_KEY`, `MAILGUN_DOMAIN`, `MAILGUN_BASE_URL=api.eu.mailgun.net`
+
+- **Stripe payments — Not implemented yet**
+  - **Planned files**: `src/lib/stripe.ts`, `components/payment/PaymentForm.tsx`, payment page, `convex/payments.ts`, `convex/http.ts` route `POST /api/webhooks/stripe`
+  - **Env to add**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+
+- **Auth emails (Resend) — Implemented**
+  - **Files**: `convex/ResendOTPPasswordReset.ts`, `convex/auth.ts`
+  - **Env**: `AUTH_RESEND_KEY` (already present)
+
+- **Convex client — Implemented**
+  - **Files**: `app/ConvexClientProvider.tsx`, `components/ConvexClientProvider.tsx`
+  - **Env**: `NEXT_PUBLIC_CONVEX_URL` (already present), `CONVEX_DEPLOYMENT` (already present)
+
+### Next concrete steps
+
+- Add Twilio/Mailgun/Stripe vars to `.env.local` and Vercel env.
+- Implement `convex/http.ts` webhook routes for Twilio, Mailgun, Stripe.
+- Build `convex/payments.ts` and `src/lib/stripe.ts`; create payment page and form.
+- Implement `src/lib/twilio.ts` and `src/lib/mailgun.ts`; wire real sending in `convex/campaigns.ts` after payment.
 
 # Sendio - Marketing Platform Project Overview
 

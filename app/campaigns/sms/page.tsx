@@ -12,6 +12,7 @@ export default function SmsCampaignPage() {
   const contacts = useQuery(api.contacts.list) ?? [];
   const [segments, setSegments] = useState(1);
   const [message, setMessage] = useState("");
+  const [senderId, setSenderId] = useState("");
   const pricing = usePricing(contacts, segments);
   return (
     <main className="container mx-auto p-6 space-y-6">
@@ -26,8 +27,9 @@ export default function SmsCampaignPage() {
               setSegments(s);
               setMessage(t);
             }}
+            onChangeSender={(s) => setSenderId(s)}
           />
-          <TestSender message={message} />
+          <TestSender message={message} senderId={senderId} />
           <CostBreakdown
             breakdown={pricing.breakdown}
             totalSek={pricing.totalSek}

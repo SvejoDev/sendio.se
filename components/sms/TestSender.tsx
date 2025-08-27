@@ -6,13 +6,17 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+// Removed sender input; we use the composer’s sender implicitly
 
 type TestSenderProps = {
   message: string;
+  senderId?: string;
 };
 
-export function TestSender({ message }: TestSenderProps) {
+export function TestSender({ message, senderId }: TestSenderProps) {
   const [phone, setPhone] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [status, setStatus] = useState<
     null | { kind: "ok" } | { kind: "error"; msg: string }
   >(null);
@@ -30,7 +34,14 @@ export function TestSender({ message }: TestSenderProps) {
     try {
       setBusy(true);
       const campaignId = await ensureDraft({ type: "sms" });
-      const res = await sendTest({ campaignId, message, phoneNumber: phone });
+      const res = await sendTest({
+        campaignId,
+        message,
+        phoneNumber: phone,
+        firstName,
+        lastName,
+        senderId,
+      });
       if (res.success) setStatus({ kind: "ok" });
       else setStatus({ kind: "error", msg: res.error ?? "Misslyckades" });
     } catch (e) {
@@ -46,12 +57,25 @@ export function TestSender({ message }: TestSenderProps) {
       <div className="text-sm text-muted-foreground">
         Se hur ditt sms kommer se ut genom att skicka till dig själv
       </div>
-      <div className="flex gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         <Input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Ditt nummer i korrekt format, t.ex. +46701234567"
         />
+        {/* Removed SenderIdInput */}
+        <Input
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          placeholder="Förnamn (för att testa {first_name})"
+        />
+        <Input
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          placeholder="Efternamn (för att testa {last_name})"
+        />
+      </div>
+      <div>
         <Button onClick={onSend} disabled={busy}>
           Skicka
         </Button>

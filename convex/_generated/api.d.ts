@@ -21,6 +21,7 @@ import type * as myFunctions from "../myFunctions.js";
 import type * as sms from "../sms.js";
 import type * as smsAction from "../smsAction.js";
 import type * as unsubscribe from "../unsubscribe.js";
+import type * as utils from "../utils.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   sms: typeof sms;
   smsAction: typeof smsAction;
   unsubscribe: typeof unsubscribe;
+  utils: typeof utils;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
