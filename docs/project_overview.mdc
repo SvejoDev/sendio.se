@@ -12,7 +12,7 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 
 ### Frontend & Framework
 
-- **Vite + React 18** - Fast development and modern React features
+- **Next.js 15** - App Router with React Server Components
 - **TypeScript** - Type safety throughout the application
 - **Tailwind CSS** - Utility-first styling
 - **shadcn/ui** - High-quality component library
@@ -34,7 +34,7 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 
 ### Development Tools
 
-- **Vite** - Build tool and dev server
+- **Next.js** - React framework with App Router
 - **ESLint + TypeScript** - Code quality
 - **PostCSS** - CSS processing
 
@@ -102,14 +102,16 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 
 ### Email Campaigns
 
-- **Drag & Drop Builder**: Text, image, button, divider, social elements
-- **Templates**: 3-4 pre-made templates with replaceable content
+- **Professional Templates**: 4 pre-made templates (Newsletter, Promotional, Announcement, Event)
+- **Drag & Drop Builder**: Text, image, button, divider, social elements with real-time editing
+- **Template System**: Interactive template selector with previews and customization
+- **Element Library**: Comprehensive set of email elements and quick layouts
+- **Mobile/Desktop Preview**: Responsive design switching for accurate preview
 - **Subject Line**: Variable support ({first_name}, {last_name})
-- **From Setup**: Send from noreply@svejo.se with custom from name
+- **From Setup**: Send from noreply@sendio.se with custom from name
 - **Reply-To**: Custom reply-to email address
-- **Preview**: Desktop email preview before sending
-- **Mandatory Footer**: Auto-added unsubscribe link (GDPR compliance)
-- **Trackable Links**: Click tracking for analytics
+- **GDPR Footer**: Auto-added unsubscribe link and compliance text
+- **Professional Design**: Swedish business-focused templates with modern styling
 
 ### Campaign Types
 
@@ -249,273 +251,88 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 - **Legal**: DPA and Privacy Policy prepared
 - **Design**: Complete UI/UX specifications ready
 
-## ✅ Implementation status and required environment variables
+## ✅ Implementation Status and Required Environment Variables
 
-- **Test SMS (Twilio) — Implemented**
-  - **Files**: `convex/smsAction.ts` (action `sendTest`), `convex/sms.ts` (queries/mutations for test tracking and suppression), `components/sms/TestSender.tsx`
+### Completed Features
+
+- **Email Template System ✅ COMPLETED** 
+  - **Files**: `app/campaigns/email/page.tsx`, `components/email/TemplateSelector.tsx`, `components/email/EmailBuilder.tsx`, `components/email/ElementLibrary.tsx`, `data/emailTemplates.ts`
+  - **Features**: 4 professional templates (Newsletter, Promotional, Announcement, Event), drag & drop builder, mobile/desktop preview, element editing, GDPR compliance
+  - **Status**: Complete email template system with real-time editing and responsive design
+
+- **Enhanced Image Management & Layout Improvements ✅ COMPLETED**
+  - **Files**: `components/email/ImageUpload.tsx` (new), `app/campaigns/email/page.tsx` (updated), `components/email/EmailBuilder.tsx` (enhanced)
+  - **Features**: Full-width responsive layout using entire screen width, easy image replacement with hover overlays and "Byt bild" buttons, advanced image upload modal with drag & drop support, canvas-based cropping with position/size controls, horizontal scrollable elements on mobile devices, maintains image positioning while allowing content replacement
+  - **Status**: Complete image replacement workflow with professional UX, responsive design, and intuitive user experience
+
+- **Advanced Layout & Auto-Save System ✅ COMPLETED**
+  - **Files**: `app/campaigns/email/page.tsx` (redesigned), `components/email/EmailBuilder.tsx` (layout fix), `hooks/useAutoSave.ts` (new), `components/campaigns/AutoSaveIndicator.tsx` (new), `components/campaigns/DraftRecoveryDialog.tsx` (new)
+  - **Features**: 
+    - **Improved Layout**: Email settings row on top, Element|Preview|Settings in optimized 3-column layout below
+    - **Template Image Replacement**: Seamless workflow for replacing template images during initial template selection
+    - **Auto-Save System**: Automatic draft saving every 3 seconds, prevents data loss on refresh/navigation
+    - **Draft Recovery**: Smart detection and recovery of unsaved work with user-friendly dialog
+    - **Container Fix**: Resolved overflow issues, proper height constraints for scrollable areas
+  - **Status**: Professional email campaign builder with enterprise-grade data protection and optimal user experience
+
+- **Template Editing & Component Fixes ✅ COMPLETED**
+  - **Files**: `app/campaigns/email/page.tsx` (template ID fix), `components/email/EmailBuilder.tsx` (image overlay), `components/email/ElementLibrary.tsx` (layout timing), `hooks/useAutoSave.ts` (SSR fix)
+  - **Features**:
+    - **Template Element Editing**: Fixed template elements to be fully editable with proper unique IDs
+    - **Universal Image Replacement**: All images (template and user-added) now have hover overlays with "Byt bild" button
+    - **Quick Layout Fix**: "Bild + text" layout now properly adds both image and text elements
+    - **SSR Compatibility**: Auto-save system now works properly with server-side rendering
+    - **Improved Image UX**: Better overlay styling and z-index management for reliable interaction
+  - **Status**: Complete template editing system with universal image replacement and robust auto-save functionality
+
+- **Critical UX & Layout Fixes ✅ COMPLETED**
+  - **Files**: `data/emailTemplates.ts` (restructured), `components/email/EmailBuilder.tsx` (editor fixes), `app/campaigns/email/page.tsx` (layout height), `components/email/ElementLibrary.tsx` (height fix)
+  - **Features**:
+    - **Template Image Visibility**: Restructured email templates to use separate image elements instead of embedded HTML images, making all template images replaceable with hover overlays
+    - **Stable Text Editing**: Fixed text editor to preserve HTML structure without reconstructing on every keystroke, enabling smooth editing experience
+    - **Maximized Layout Height**: Increased 3-column layout to use `calc(100vh-80px)` for optimal screen space utilization
+    - **Container Overflow Fix**: Added proper max-height constraints to prevent Element and Preview sections from extending below viewport
+    - **Improved Developer Experience**: Text editor now shows raw HTML with syntax tips for advanced users
+  - **Status**: Professional editing experience with stable text input, visible image overlays, and optimized layout spacing
+
+- **Test SMS (Twilio) ✅ COMPLETED**
+  - **Files**: `convex/smsAction.ts`, `convex/sms.ts`, `components/sms/TestSender.tsx`
   - **HTTP endpoints**: none required for sending; delivery webhook pending
-  - **Env to add**: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `TWILIO_MESSAGING_SERVICE_SID` (optional)
+  - **Env**: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`, `TWILIO_MESSAGING_SERVICE_SID` (optional)
 
-- **Real SMS campaign sending — Not implemented yet**
-  - **Planned files**: `src/lib/twilio.ts`, `convex/campaigns.ts` (sending pipeline), `convex/http.ts` route `POST /api/webhooks/twilio` (delivery events)
-  - **Env**: reuse Twilio vars above
-
-- **Email campaigns (Mailgun) — Not implemented yet**
-  - **Planned files**: `src/lib/mailgun.ts`, `convex/campaigns.ts`, `convex/http.ts` route `POST /api/webhooks/mailgun`
-  - **Env to add**: `MAILGUN_API_KEY`, `MAILGUN_DOMAIN`, `MAILGUN_BASE_URL=api.eu.mailgun.net`
-
-- **Stripe payments — Not implemented yet**
-  - **Planned files**: `src/lib/stripe.ts`, `components/payment/PaymentForm.tsx`, payment page, `convex/payments.ts`, `convex/http.ts` route `POST /api/webhooks/stripe`
-  - **Env to add**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
-
-- **Auth emails (Resend) — Implemented**
+- **Auth emails (Resend) ✅ COMPLETED**
   - **Files**: `convex/ResendOTPPasswordReset.ts`, `convex/auth.ts`
   - **Env**: `AUTH_RESEND_KEY` (already present)
 
-- **Convex client — Implemented**
+- **Convex client ✅ COMPLETED**
   - **Files**: `app/ConvexClientProvider.tsx`, `components/ConvexClientProvider.tsx`
-  - **Env**: `NEXT_PUBLIC_CONVEX_URL` (already present), `CONVEX_DEPLOYMENT` (already present)
+  - **Env**: `NEXT_PUBLIC_CONVEX_URL`, `CONVEX_DEPLOYMENT` (already present)
 
-### Next concrete steps
+### Pending Implementation
 
-- Add Twilio/Mailgun/Stripe vars to `.env.local` and Vercel env.
-- Implement `convex/http.ts` webhook routes for Twilio, Mailgun, Stripe.
-- Build `convex/payments.ts` and `src/lib/stripe.ts`; create payment page and form.
-- Implement `src/lib/twilio.ts` and `src/lib/mailgun.ts`; wire real sending in `convex/campaigns.ts` after payment.
+- **Real SMS campaign sending — Not implemented yet**
+  - **Planned files**: `lib/twilio.ts`, `convex/campaigns.ts` (sending pipeline), `convex/http.ts` route `POST /api/webhooks/twilio` (delivery events)
+  - **Env**: reuse Twilio vars above
 
-# Sendio - Marketing Platform Project Overview
+- **Email campaigns (Mailgun) — Sending not implemented yet**
+  - **Planned files**: `lib/mailgun.ts`, `convex/campaigns.ts`, `convex/http.ts` route `POST /api/webhooks/mailgun`
+  - **Env to add**: `MAILGUN_API_KEY`, `MAILGUN_DOMAIN`, `MAILGUN_BASE_URL=api.eu.mailgun.net`
 
-## 🎯 Project Vision
+- **Stripe payments — Not implemented yet**
+  - **Planned files**: `lib/stripe.ts`, `components/payment/PaymentForm.tsx`, payment page, `convex/payments.ts`, `convex/http.ts` route `POST /api/webhooks/stripe`
+  - **Env to add**: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
 
-Sendio is a revolutionary SMS & email marketing platform with **NO monthly subscriptions**. Companies pay only when they send campaigns, providing complete cost transparency and control. Built specifically for the Scandinavian market with GDPR compliance at its core.
+### Next Concrete Steps
 
-## 🏗 Tech Stack
+1. **Phase 4.3**: Add email preview functionality and test email sending (Subject line editor, variable replacement, HTML generation)
+2. **Phase 5**: Stripe payment integration for campaign processing
+3. **Phase 6**: Campaign sending infrastructure (SMS + Email via Mailgun)
+4. **Phase 7**: Analytics dashboard and webhook processing
+5. **Phase 8**: Final polish and performance optimization
 
-### Frontend & Framework
+### Environment Setup
 
-- **Vite + React 18** - Fast development and modern React features
-- **TypeScript** - Type safety throughout the application
-- **Tailwind CSS** - Utility-first styling
-- **shadcn/ui** - High-quality component library
-- **Lucide React** - Beautiful icons
-
-### Backend & Database
-
-- **Convex** - Real-time database with TypeScript
-- **Convex Auth** - Authentication system (from starter kit)
-- **Resend** - Transactional emails (OTP, password reset)
-- **Mailgun** - Marketing campaign emails with tracking
-- **Twilio** - SMS campaigns
-
-### Payment & Infrastructure
-
-- **Stripe** - Payment processing (Swedish Krona)
-- **Vercel** - Hosting and deployment
-- **Domain**: sendio.se (already purchased on Loopia)
-
-### Development Tools
-
-- **Vite** - Build tool and dev server
-- **ESLint + TypeScript** - Code quality
-- **PostCSS** - CSS processing
-
-## 💰 Pricing Strategy (2025 Market Research)
-
-### SMS Pricing (Twilio + 100% markup)
-
-- **Sweden (+46)**: $0.12 per SMS
-- **Denmark (+45)**: $0.11 per SMS
-- **Norway (+47)**: $0.13 per SMS
-- **Finland (+358)**: $0.17 per SMS
-- **Germany (+49)**: $0.22 per SMS
-
-### Email Pricing (Mailgun + 150% markup)
-
-- **All Countries**: $3.25 per 1,000 emails
-
-### Key Pricing Features
-
-- **Real-time cost calculation** as user creates campaign
-- **Transparent pricing** - no hidden fees
-- **Pay-per-campaign** - zero monthly subscriptions
-- **100% refund** if campaign fails to send
-
-## 🎯 Target Market
-
-- **Primary**: Small businesses in Scandinavia + Germany
-- **Focus**: Companies tired of monthly subscription marketing tools
-- **Size**: 1-10,000 contacts per campaign
-
-## 🔑 Unique Selling Propositions
-
-1. **No Monthly Subscriptions** - Pay only when you send
-2. **Instant Cost Calculation** - See exact costs before payment
-3. **GDPR Compliant by Design** - Built for Swedish/EU regulations
-4. **Simple & Fast** - Upload contacts → Create campaign → Pay → Send
-5. **Combined Campaigns** - SMS + Email in one payment
-
-## 🛠 Core Features
-
-### Contact Management
-
-- **File Import**: CSV, Excel with column mapping
-- **Required Fields**: Either phone OR email (both optional but at least one)
-- **Optional Fields**: firstName, lastName for personalization
-- **Import Behavior**: New import completely replaces old contact list
-- **Manual Management**: Add, edit, delete contacts individually
-- **Validation**: Real-time email/phone validation with error reporting
-
-### SMS Campaigns
-
-- **Message Composer**: Real-time character counter
-- **Mobile Preview**: See how SMS looks on phone
-- **Custom Sender ID**: Alphanumeric sender (11 chars max)
-- **Variables**: {first_name}, {last_name} replacement
-- **AVREG Compliance**: Mandatory "Avreg {link}" auto-appended (Swedish GDPR)
-- **Test SMS**: Free test to user's number (1 per campaign)
-- **Character Calculation**: User limit = Twilio max - AVREG length
-
-### Email Campaigns
-
-- **Drag & Drop Builder**: Text, image, button, divider, social elements
-- **Templates**: 3-4 pre-made templates with replaceable content
-- **Subject Line**: Variable support ({first_name}, {last_name})
-- **From Setup**: Send from noreply@svejo.se with custom from name
-- **Reply-To**: Custom reply-to email address
-- **Preview**: Desktop email preview before sending
-- **Mandatory Footer**: Auto-added unsubscribe link (GDPR compliance)
-- **Trackable Links**: Click tracking for analytics
-
-### Campaign Types
-
-1. **SMS Only** - Text message campaigns
-2. **Email Only** - Email marketing campaigns
-3. **Combined** - SMS + Email together with single payment
-
-### Scheduling System
-
-- **Send Options**: Immediately after payment OR schedule up to 30 days
-- **Timezone**: User's timezone for scheduling
-- **Granularity**: Hourly scheduling intervals
-- **Modification**: Edit/cancel scheduled campaigns
-
-### Payment System
-
-- **Real-time Pricing**: Cost updates as user builds campaign
-- **Stripe Integration**: Secure payment in Swedish Krona (SEK)
-- **Payment Flow**: Create campaign → See cost → Pay → Auto-send
-- **Cost Breakdown**: Detailed pricing by SMS country + email count
-
-### Analytics Dashboard
-
-- **Real-time Updates**: Live data from Twilio/Mailgun webhooks
-- **SMS Metrics**: Sent, delivered, failed, undelivered
-- **Email Metrics**: Sent, delivered, opened, clicked, bounced, unsubscribed
-- **Export**: Download analytics data
-- **Historical**: Permanent data retention
-
-## 📊 User Journey
-
-1. **Authentication** → Register/login using Convex Auth
-2. **Contact Import** → Upload CSV/Excel with validation
-3. **Campaign Creation** → Choose SMS, Email, or Both
-4. **Content Creation** → Compose message/email with variables
-5. **Preview & Pricing** → See exact cost breakdown
-6. **Payment** → Pay via Stripe (SEK)
-7. **Sending** → Immediate or scheduled delivery
-8. **Analytics** → Track real-time campaign performance
-
-## 🔒 GDPR Compliance (Swedish Market)
-
-### Legal Framework
-
-- **Sendio**: Data Processor (Personuppgiftsbiträde)
-- **Customers**: Data Controllers (Personuppgiftsansvariga)
-
-### Mandatory Features
-
-- **DPA Acceptance**: Required during registration
-- **Consent Confirmation**: Before every contact import
-- **Unsubscribe System**: One-click AVREG for SMS, footer links for email
-- **Right to Delete**: Permanent contact deletion
-- **Right to Access**: Contact data export
-- **Compliance Logging**: All GDPR actions tracked with timestamps
-
-### SMS GDPR Requirements
-
-- **Mandatory AVREG**: Every SMS ends with "Avreg {unique_link}"
-- **Auto-append**: User cannot remove unsubscribe link
-- **One-click**: Simple unsubscribe landing page
-
-### Email GDPR Requirements
-
-- **Mandatory Footer**: Unsubscribe link + company info
-- **One-click**: Simple unsubscribe process
-- **Tracking**: Unsubscribe events logged
-
-## 🎨 UI/UX Requirements
-
-### Design Principles
-
-- **Scandinavian Minimalism**: Clean, simple, functional
-- **Mobile-First**: Responsive design for all devices
-- **Speed**: Fast loading, smooth interactions
-- **Accessibility**: WCAG 2.1 AA compliant
-
-### Color Palette
-
-- **Primary**: Blue (#2563eb) for trust/reliability
-- **Success**: Green (#16a34a) for money/success
-- **Text**: Dark gray (#1f2937) for readability
-- **Background**: Light gray (#f8fafc) for contrast
-
-### Key UI Components
-
-- **Landing Page**: Hero, features, pricing, how it works
-- **Dashboard**: Campaign overview, analytics, contact management
-- **Campaign Builder**: Step-by-step wizard with real-time preview
-- **Mobile Preview**: Accurate SMS/email rendering
-
-## 🔧 Integration Requirements
-
-### Twilio SMS
-
-- **Authentication**: Account SID + Auth Token (pay-as-you-go)
-- **Features**: Custom sender ID, delivery webhooks, country pricing
-- **Rate Limiting**: 1 SMS per second (basic account)
-- **Webhooks**: Delivery status tracking
-
-### Mailgun Email
-
-- **Authentication**: API Key + verified domain (mg.svejo.se)
-- **Features**: Email tracking, click tracking, delivery webhooks
-- **Rate Limiting**: 100 emails per second (paid plan)
-- **GDPR**: EU endpoint (api.eu.mailgun.net)
-
-### Stripe Payment
-
-- **Currency**: Swedish Krona (SEK)
-- **Features**: Payment intents, webhooks, refunds
-- **Security**: PCI compliant, webhook signature verification
-
-### Resend (Transactional)
-
-- **Purpose**: OTP codes, password reset emails
-- **Integration**: Already configured in starter kit
-- **Separation**: Keep separate from marketing emails
-
-## 📈 Success Metrics
-
-- **Page Load**: < 2 seconds
-- **SMS Delivery**: > 98%
-- **Email Delivery**: > 95%
-- **Payment Success**: > 99%
-- **GDPR Compliance**: 100%
-
-## 🚀 Launch Readiness
-
-- **Domain**: sendio.se configured
-- **Hosting**: Vercel deployment ready
-- **APIs**: Twilio, Mailgun, Stripe accounts configured
-- **Legal**: DPA and Privacy Policy prepared
-- **Design**: Complete UI/UX specifications ready
+Add required environment variables to `.env.local` and Vercel deployment:
+- Twilio SMS credentials for production sending
+- Mailgun credentials for email campaign delivery  
+- Stripe credentials for payment processing
