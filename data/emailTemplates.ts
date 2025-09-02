@@ -8,10 +8,38 @@ export interface EmailElement {
   text?: string;
   backgroundColor?: string;
   textColor?: string;
+  borderColor?: string;
   alignment?: "left" | "center" | "right";
   fontSize?: "sm" | "base" | "lg" | "xl" | "2xl";
   fontWeight?: "normal" | "medium" | "semibold" | "bold";
-  spacing?: "tight" | "normal" | "loose";
+  spacing?: "tight" | "normal" | "loose" | number;
+  
+  // Image specific properties
+  width?: number;
+  
+  // Button specific properties
+  style?: string;
+  size?: string;
+  radius?: string;
+  fullWidth?: boolean;
+  trackClicks?: boolean;
+  
+  // Divider specific properties
+  lineStyle?: string;
+  lineWidth?: number;
+  lineColor?: string;
+  
+  // Social specific properties
+  socialLinks?: Array<{
+    platform: string;
+    url: string;
+    enabled: boolean;
+  }>;
+  iconStyle?: string;
+  iconSize?: string;
+  iconColor?: string;
+  iconBackground?: string;
+  useColoredIcons?: boolean;
 }
 
 export interface EmailTemplate {
