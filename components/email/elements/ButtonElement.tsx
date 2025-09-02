@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,7 @@ import { EmailElement } from "@/data/emailTemplates";
 interface ButtonElementProps {
   element: EmailElement;
   onUpdate: (updates: Partial<EmailElement>) => void;
-  isSelected: boolean;
+  isSelected?: boolean;
   isPreview?: boolean;
 }
 
@@ -48,7 +48,6 @@ const BUTTON_RADIUS = [
 export default function ButtonElement({ 
   element, 
   onUpdate, 
-  isSelected, 
   isPreview = false 
 }: ButtonElementProps) {
   const [buttonText, setButtonText] = useState(element.text || "Klicka här");
@@ -61,6 +60,20 @@ export default function ButtonElement({
   const [borderColor, setBorderColor] = useState(element.borderColor || "#2563eb");
   const [enableTracking, setEnableTracking] = useState(element.trackClicks !== false);
   const [fullWidth, setFullWidth] = useState(element.fullWidth || false);
+
+  // Sync state with element props when they change
+  useEffect(() => {
+    setButtonText(element.text || "Klicka här");
+    setButtonUrl(element.url || "");
+    setButtonStyle(element.style || "filled");
+    setButtonSize(element.size || "md");
+    setButtonRadius(element.radius || "md");
+    setBackgroundColor(element.backgroundColor || "#2563eb");
+    setTextColor(element.textColor || "#ffffff");
+    setBorderColor(element.borderColor || "#2563eb");
+    setEnableTracking(element.trackClicks !== false);
+    setFullWidth(element.fullWidth || false);
+  }, [element]);
 
   const updateButton = (updates: Partial<EmailElement>) => {
     onUpdate(updates);
@@ -112,21 +125,7 @@ export default function ButtonElement({
     );
   }
 
-  // Edit mode but not selected
-  if (!isSelected) {
-    return (
-      <div className={`my-6 text-${element.alignment || "center"}`}>
-        <span
-          className={getButtonClass()}
-          style={getButtonStyle()}
-        >
-          {element.text || "Klicka här"}
-        </span>
-      </div>
-    );
-  }
-
-  // Full edit mode with controls
+  // Full edit mode with controls (when not in preview)
   return (
     <div className="space-y-4 p-4">
       {/* Button Preview */}
@@ -315,12 +314,13 @@ export default function ButtonElement({
                 type="color"
                 value={buttonStyle === "outline" ? borderColor : backgroundColor}
                 onChange={(e) => {
+                  const newColor = e.target.value;
                   if (buttonStyle === "outline") {
-                    setBorderColor(e.target.value);
-                    updateButton({ borderColor: e.target.value });
+                    setBorderColor(newColor);
+                    updateButton({ borderColor: newColor });
                   } else {
-                    setBackgroundColor(e.target.value);
-                    updateButton({ backgroundColor: e.target.value });
+                    setBackgroundColor(newColor);
+                    updateButton({ backgroundColor: newColor });
                   }
                 }}
                 className="w-12 h-8 p-1"
@@ -328,12 +328,13 @@ export default function ButtonElement({
               <Input
                 value={buttonStyle === "outline" ? borderColor : backgroundColor}
                 onChange={(e) => {
+                  const newColor = e.target.value;
                   if (buttonStyle === "outline") {
-                    setBorderColor(e.target.value);
-                    updateButton({ borderColor: e.target.value });
+                    setBorderColor(newColor);
+                    updateButton({ borderColor: newColor });
                   } else {
-                    setBackgroundColor(e.target.value);
-                    updateButton({ backgroundColor: e.target.value });
+                    setBackgroundColor(newColor);
+                    updateButton({ backgroundColor: newColor });
                   }
                 }}
                 placeholder="#2563eb"
@@ -351,15 +352,16 @@ export default function ButtonElement({
               type="color"
               value={buttonStyle === "ghost" ? backgroundColor : (buttonStyle === "outline" ? borderColor : textColor)}
               onChange={(e) => {
+                const newColor = e.target.value;
                 if (buttonStyle === "ghost") {
-                  setBackgroundColor(e.target.value);
-                  updateButton({ backgroundColor: e.target.value });
+                  setBackgroundColor(newColor);
+                  updateButton({ backgroundColor: newColor });
                 } else if (buttonStyle === "outline") {
-                  setBorderColor(e.target.value);
-                  updateButton({ borderColor: e.target.value });
+                  setBorderColor(newColor);
+                  updateButton({ borderColor: newColor });
                 } else {
-                  setTextColor(e.target.value);
-                  updateButton({ textColor: e.target.value });
+                  setTextColor(newColor);
+                  updateButton({ textColor: newColor });
                 }
               }}
               className="w-12 h-8 p-1"
@@ -367,15 +369,16 @@ export default function ButtonElement({
             <Input
               value={buttonStyle === "ghost" ? backgroundColor : (buttonStyle === "outline" ? borderColor : textColor)}
               onChange={(e) => {
+                const newColor = e.target.value;
                 if (buttonStyle === "ghost") {
-                  setBackgroundColor(e.target.value);
-                  updateButton({ backgroundColor: e.target.value });
+                  setBackgroundColor(newColor);
+                  updateButton({ backgroundColor: newColor });
                 } else if (buttonStyle === "outline") {
-                  setBorderColor(e.target.value);
-                  updateButton({ borderColor: e.target.value });
+                  setBorderColor(newColor);
+                  updateButton({ borderColor: newColor });
                 } else {
-                  setTextColor(e.target.value);
-                  updateButton({ textColor: e.target.value });
+                  setTextColor(newColor);
+                  updateButton({ textColor: newColor });
                 }
               }}
               placeholder={buttonStyle === "filled" ? "#ffffff" : "#2563eb"}
@@ -387,17 +390,17 @@ export default function ButtonElement({
         {/* Quick Color Presets */}
         <div>
           <Label className="text-xs mb-2 block">Snabbval</Label>
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-5 gap-2">
             {[
               "#2563EB", // Blue
               "#16A34A", // Green  
               "#DC2626", // Red
               "#EA580C", // Orange
-              "#FACC15", // Yellow
               "#7C3AED", // Purple
               "#DB2777", // Pink
-              "#000000", // Black
+              "#FACC15", // Yellow
               "#6B7280", // Gray
+              "#000000", // Black
               "#FFFFFF"  // White (with border)
             ].map(color => (
               <button
@@ -408,19 +411,19 @@ export default function ButtonElement({
                 style={{ backgroundColor: color }}
                 onClick={() => {
                   if (buttonStyle === "filled") {
+                    const newTextColor = color === "#FFFFFF" || color === "#FACC15" ? "#000000" : "#FFFFFF";
                     setBackgroundColor(color);
-                    setTextColor(color === "#FFFFFF" || color === "#FACC15" ? "#000000" : "#FFFFFF");
+                    setTextColor(newTextColor);
                     updateButton({ 
                       backgroundColor: color,
-                      textColor: color === "#FFFFFF" || color === "#FACC15" ? "#000000" : "#FFFFFF"
+                      textColor: newTextColor
                     });
-                  } else {
+                  } else if (buttonStyle === "outline") {
                     setBorderColor(color);
                     updateButton({ borderColor: color });
-                    if (buttonStyle === "ghost") {
-                      setBackgroundColor(color);
-                      updateButton({ backgroundColor: color });
-                    }
+                  } else if (buttonStyle === "ghost") {
+                    setBackgroundColor(color);
+                    updateButton({ backgroundColor: color });
                   }
                 }}
               />
