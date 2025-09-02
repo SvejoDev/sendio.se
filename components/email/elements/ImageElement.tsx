@@ -36,7 +36,8 @@ export default function ImageElement({
   onImageClick 
 }: ImageElementProps) {
   const [showImageUpload, setShowImageUpload] = useState(false);
-  const [imageWidth, setImageWidth] = useState(element.width || 100);
+  const elementWidth = typeof element.width === 'string' ? parseInt(element.width) || 100 : (element.width || 100);
+  const [imageWidth, setImageWidth] = useState(elementWidth);
   const [hasLink, setHasLink] = useState(!!element.url);
   const [linkUrl, setLinkUrl] = useState(element.url || "");
   const [altText, setAltText] = useState(element.alt || "");

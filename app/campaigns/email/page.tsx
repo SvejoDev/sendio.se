@@ -1,20 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import TemplateSelector from "@/components/email/TemplateSelector";
 import EmailBuilder from "@/components/email/EmailBuilder";
 import ImageUpload from "@/components/email/ImageUpload";
+import EmailPreview from "@/components/email/EmailPreview";
+import SubjectLineEditor from "@/components/email/SubjectLineEditor";
+import VariablePreview from "@/components/email/VariablePreview";
 import AutoSaveIndicator from "@/components/campaigns/AutoSaveIndicator";
 import DraftRecoveryDialog from "@/components/campaigns/DraftRecoveryDialog";
 import { useAutoSave, AutoSaveData } from "@/hooks/useAutoSave";
-import { ArrowLeft, Send, Eye, Image as ImageIcon, Check, Save } from "lucide-react";
+import { ArrowLeft, Send, Eye, Image as ImageIcon, Check, Save, TestTube } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { EmailTemplate, EmailElement } from "@/data/emailTemplates";
+import { useAction } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 interface EmailContent extends AutoSaveData {
   subject: string;
@@ -27,6 +33,8 @@ interface EmailContent extends AutoSaveData {
 
 export default function CreateEmailCampaign() {
   const router = useRouter();
+  const { toast } = useToast();
+  const sendTestEmail = useAction(api.email.sendTestEmail);
   const [step, setStep] = useState<"template" | "build" | "preview">("template");
   const [emailContent, setEmailContent] = useState<EmailContent>({
     subject: "",
@@ -42,6 +50,22 @@ export default function CreateEmailCampaign() {
   const [tempElements, setTempElements] = useState<EmailElement[]>([]);
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [previewContact, setPreviewContact] = useState({
+    firstName: "Johan",
+    lastName: "Svensson",
+    email: "johan@exempel.se"
+  });
+  const [testEmailAddress, setTestEmailAddress] = useState("");
+  const [isSendingTest, setIsSendingTest] = useState(false);
+
+  const handlePreviewContactChange = useCallback((contact: { firstName?: string; lastName?: string; email?: string; phoneNumber?: string }) => {
+    setPreviewContact({
+      firstName: contact.firstName || "",
+      lastName: contact.lastName || "",
+      email: contact.email || ""
+    });
+  }, []);
 
   // Auto-save hook
   const { loadData, clearSavedData, hasUnsavedChanges, forceSave } = useAutoSave(
@@ -219,7 +243,7 @@ export default function CreateEmailCampaign() {
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => setStep("preview")}
+                      onClick={() => setShowEmailPreview(true)}
                       className="gap-2"
                     >
                       <Eye className="h-4 w-4" />
@@ -238,61 +262,155 @@ export default function CreateEmailCampaign() {
             <div className="mb-4">
               <Card className="p-4">
                 <h3 className="font-medium mb-4">E-postinställningar</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="subject">Ämnesrad</Label>
-                    <Input
-                      id="subject"
-                      value={emailContent.subject}
-                      onChange={(e) => setEmailContent(prev => ({ 
-                        ...prev, 
-                        subject: e.target.value 
-                      }))}
-                      placeholder="Skriv din ämnesrad..."
-                      className="mt-1"
-                    />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <SubjectLineEditor
+                        value={emailContent.subject}
+                        onChange={(value) => setEmailContent(prev => ({ 
+                          ...prev, 
+                          subject: value 
+                        }))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="fromName">Avsändarnamn</Label>
+                      <Input
+                        id="fromName"
+                        value={emailContent.fromName}
+                        onChange={(e) => setEmailContent(prev => ({ 
+                          ...prev, 
+                          fromName: e.target.value 
+                        }))}
+                        placeholder="Ditt företagsnamn"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="replyTo">Svar-till e-post</Label>
+                      <Input
+                        id="replyTo"
+                        type="email"
+                        value={emailContent.replyTo}
+                        onChange={(e) => setEmailContent(prev => ({ 
+                          ...prev, 
+                          replyTo: e.target.value 
+                        }))}
+                        placeholder="info@dittforetag.se"
+                        className="mt-1"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="fromName">Avsändarnamn</Label>
-                    <Input
-                      id="fromName"
-                      value={emailContent.fromName}
-                      onChange={(e) => setEmailContent(prev => ({ 
-                        ...prev, 
-                        fromName: e.target.value 
-                      }))}
-                      placeholder="Ditt företagsnamn"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="replyTo">Svar-till e-post</Label>
-                    <Input
-                      id="replyTo"
-                      type="email"
-                      value={emailContent.replyTo}
-                      onChange={(e) => setEmailContent(prev => ({ 
-                        ...prev, 
-                        replyTo: e.target.value 
-                      }))}
-                      placeholder="info@dittforetag.se"
-                      className="mt-1"
-                    />
+                  
+                  {/* Test Email Section */}
+                  <div className="border-t pt-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-medium">Skicka test-e-post</h4>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="email"
+                          value={testEmailAddress}
+                          onChange={(e) => setTestEmailAddress(e.target.value)}
+                          placeholder="test@exempel.se"
+                          className="w-48 h-8"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={async () => {
+                            if (!testEmailAddress) {
+                              toast({
+                                title: "Ange e-postadress",
+                                description: "Skriv in en e-postadress för att skicka test.",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                            
+                            if (!emailContent.subject || !emailContent.fromName) {
+                              toast({
+                                title: "Saknar information",
+                                description: "Fyll i ämnesrad och avsändarnamn först.",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                            
+                            setIsSendingTest(true);
+                            try {
+                              const result = await sendTestEmail({
+                                toEmail: testEmailAddress,
+                                subject: emailContent.subject,
+                                fromName: emailContent.fromName,
+                                replyTo: emailContent.replyTo,
+                                elements: emailContent.elements,
+                                testContact: previewContact
+                              });
+                              
+                              if (result.success) {
+                                toast({
+                                  title: "Test-e-post skickat!",
+                                  description: result.message,
+                                });
+                              } else {
+                                toast({
+                                  title: "Kunde inte skicka",
+                                  description: result.message,
+                                  variant: "destructive"
+                                });
+                              }
+                            } catch {
+                              toast({
+                                title: "Fel uppstod",
+                                description: "Kunde inte skicka test-e-post.",
+                                variant: "destructive"
+                              });
+                            } finally {
+                              setIsSendingTest(false);
+                            }
+                          }}
+                          disabled={isSendingTest || emailContent.elements.length === 0}
+                          className="gap-2"
+                        >
+                          <TestTube className="h-3 w-3" />
+                          {isSendingTest ? "Skickar..." : "Skicka test"}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
             </div>
 
-            {/* Email Builder Row */}
-            <div className="h-[700px] mb-8">
-              <EmailBuilder
-                template={emailContent.template}
-                elements={emailContent.elements}
-                onElementsChange={handleContentUpdate}
-              />
+            {/* Email Builder Row with Variable Preview */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[700px] mb-8">
+              <div className="lg:col-span-3">
+                <EmailBuilder
+                  template={emailContent.template}
+                  elements={emailContent.elements}
+                  onElementsChange={handleContentUpdate}
+                />
+              </div>
+              <div className="lg:col-span-1">
+                <VariablePreview
+                  onContactChange={handlePreviewContactChange}
+                  className="h-full"
+                />
+              </div>
             </div>
           </div>
         )}
+
+        {/* Email Preview Modal */}
+        <EmailPreview
+          isOpen={showEmailPreview}
+          onClose={() => setShowEmailPreview(false)}
+          subject={emailContent.subject}
+          fromName={emailContent.fromName}
+          replyTo={emailContent.replyTo}
+          elements={emailContent.elements}
+          contactSample={previewContact}
+        />
 
         {step === "preview" && (
           <div className="max-w-4xl mx-auto">

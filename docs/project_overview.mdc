@@ -112,6 +112,8 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 - **Reply-To**: Custom reply-to email address
 - **GDPR Footer**: Auto-added unsubscribe link and compliance text
 - **Professional Design**: Swedish business-focused templates with modern styling
+- **Test Email Sending**: Preview and test emails before campaign launch
+- **Variable System**: Dynamic content with {first_name} and {last_name} replacements
 
 ### Campaign Types
 
@@ -272,6 +274,18 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
     - **Drag & Drop**: @dnd-kit integration for intuitive element reordering
   - **Status**: Complete modular email builder with professional UX and comprehensive styling controls
 
+- **Email Preview and Variables ✅ COMPLETED (Task 4.3)**
+  - **Files**: `components/email/EmailPreview.tsx`, `components/email/SubjectLineEditor.tsx`, `components/email/VariablePreview.tsx`, `convex/email.ts`, `hooks/use-toast.ts`
+  - **Features**:
+    - **EmailPreview**: Desktop and mobile responsive preview modes with tab switching
+    - **SubjectLineEditor**: Advanced subject line editor with variable insertion, character counter, live preview
+    - **VariablePreview**: Sample contact selector for testing variable replacements
+    - **Test Email Sending**: Integrated test email functionality using Resend API
+    - **HTML Generation**: Complete HTML email generation from element array
+    - **Variable Replacement**: Dynamic content replacement for {first_name} and {last_name}
+    - **GDPR Compliance**: Automatic footer with unsubscribe link and privacy policy
+  - **Status**: Complete email preview system with test sending and variable support
+
 - **Enhanced Image Management & Layout Improvements ✅ COMPLETED**
   - **Files**: `components/email/ImageUpload.tsx` (new), `app/campaigns/email/page.tsx` (updated), `components/email/EmailBuilder.tsx` (enhanced)
   - **Features**: Full-width responsive layout using entire screen width, easy image replacement with hover overlays and "Byt bild" buttons, advanced image upload modal with drag & drop support, canvas-based cropping with position/size controls, horizontal scrollable elements on mobile devices, maintains image positioning while allowing content replacement
@@ -336,11 +350,10 @@ Sendio is a revolutionary SMS & email marketing platform with **NO monthly subsc
 
 ### Next Concrete Steps
 
-1. **Phase 4.3**: Add email preview functionality and test email sending (Subject line editor, variable replacement, HTML generation)
-2. **Phase 5**: Stripe payment integration for campaign processing
-3. **Phase 6**: Campaign sending infrastructure (SMS + Email via Mailgun)
-4. **Phase 7**: Analytics dashboard and webhook processing
-5. **Phase 8**: Final polish and performance optimization
+1. **Phase 5**: Stripe payment integration for campaign processing
+2. **Phase 6**: Campaign sending infrastructure (SMS + Email via Mailgun)
+3. **Phase 7**: Analytics dashboard and webhook processing
+4. **Phase 8**: Final polish and performance optimization
 
 ### Environment Setup
 

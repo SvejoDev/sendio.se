@@ -10,17 +10,20 @@ export interface EmailElement {
   textColor?: string;
   borderColor?: string;
   alignment?: "left" | "center" | "right";
-  fontSize?: "sm" | "base" | "lg" | "xl" | "2xl";
+  align?: "left" | "center" | "right"; // Alias for alignment
+  fontSize?: "sm" | "base" | "lg" | "xl" | "2xl" | string;
   fontWeight?: "normal" | "medium" | "semibold" | "bold";
   spacing?: "tight" | "normal" | "loose" | number;
+  color?: string; // Text color
   
   // Image specific properties
-  width?: number;
+  width?: number | string;
   
   // Button specific properties
   style?: string;
   size?: string;
   radius?: string;
+  cornerRadius?: number | string;
   fullWidth?: boolean;
   trackClicks?: boolean;
   
@@ -28,12 +31,18 @@ export interface EmailElement {
   lineStyle?: string;
   lineWidth?: number;
   lineColor?: string;
+  thickness?: number;
   
   // Social specific properties
   socialLinks?: Array<{
     platform: string;
     url: string;
     enabled: boolean;
+  }>;
+  platforms?: Array<{
+    name: string;
+    url: string;
+    icon?: string;
   }>;
   iconStyle?: string;
   iconSize?: string;

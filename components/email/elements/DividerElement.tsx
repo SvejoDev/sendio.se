@@ -32,7 +32,8 @@ export default function DividerElement({
   const [lineWidth, setLineWidth] = useState(element.lineWidth || 1);
   const [lineColor, setLineColor] = useState(element.lineColor || "#e5e7eb");
   const [spacing, setSpacing] = useState(typeof element.spacing === 'number' ? element.spacing : 24);
-  const [width, setWidth] = useState(element.width || 100);
+  const elementWidth = typeof element.width === 'string' ? parseInt(element.width) || 100 : (element.width || 100);
+  const [width, setWidth] = useState(elementWidth);
 
   const updateDivider = (updates: Partial<EmailElement>) => {
     onUpdate(updates);
