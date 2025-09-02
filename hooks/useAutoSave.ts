@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 
 export interface AutoSaveData {
   subject: string;
@@ -18,6 +18,7 @@ export function useAutoSave<T extends AutoSaveData>(
 ) {
   const timeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const previousDataRef = useRef<string>("");
+  const [saveCounter, setSaveCounter] = useState(0);
 
   const saveData = useCallback(() => {
     try {
@@ -37,6 +38,8 @@ export function useAutoSave<T extends AutoSaveData>(
         elements: data.elements,
         template: data.template
       });
+      // Increment save counter to force re-evaluation
+      setSaveCounter(prev => prev + 1);
       return timestamp;
     } catch (error) {
       console.error("Failed to auto-save:", error);
@@ -88,7 +91,7 @@ export function useAutoSave<T extends AutoSaveData>(
     });
     
     return currentDataString !== savedDataString;
-  }, [data, loadData]);
+  }, [data, loadData, saveCounter]);
 
   // Auto-save effect
   useEffect(() => {
@@ -140,6 +143,7 @@ export function useAutoSave<T extends AutoSaveData>(
     loadData,
     clearSavedData,
     hasUnsavedChanges,
-    forceSave: saveData
+    forceSave: saveData,
+    saveCounter
   };
 }

@@ -88,14 +88,15 @@ export default function CreateEmailCampaign() {
   const [isClient, setIsClient] = useState(false);
 
   // Auto-save hook
-  const { loadData, clearSavedData, hasUnsavedChanges, forceSave } = useAutoSave(
+  const { loadData, clearSavedData, hasUnsavedChanges, forceSave, saveCounter } = useAutoSave(
     emailContent,
     "email-campaign-draft",
     3000
   );
 
   // Memoize hasUnsavedChanges to prevent hydration mismatch
-  const hasUnsaved = useMemo(() => isClient ? hasUnsavedChanges() : false, [hasUnsavedChanges, isClient]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const hasUnsaved = useMemo(() => isClient ? hasUnsavedChanges() : false, [hasUnsavedChanges, isClient, saveCounter]);
 
   // Set client flag after hydration
   useEffect(() => {
