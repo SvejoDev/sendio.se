@@ -1,18 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  ChevronUp, 
-  ChevronDown, 
   Eye, 
   Smartphone,
-  Monitor,
-  Trash2,
-  Copy,
-  GripVertical
+  Monitor
 } from "lucide-react";
 import {
   DndContext,
@@ -34,8 +29,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EmailElement, EmailTemplate } from "@/data/emailTemplates";
-import ElementLibrary from "./ElementLibrary";
-import StylePanel from "./elements/StylePanel";
+import ElementsAndSettings from "./ElementsAndSettings";
 import TextElement from "./elements/TextElement";
 import ImageElement from "./elements/ImageElement";
 import ButtonElement from "./elements/ButtonElement";
@@ -50,26 +44,14 @@ interface EmailBuilderProps {
 
 interface SortableElementProps {
   element: EmailElement;
-  index: number;
   isSelected: boolean;
   onElementClick: (id: string) => void;
-  onElementUpdate: (id: string, updates: Partial<EmailElement>) => void;
-  onElementDelete: (id: string) => void;
-  onElementDuplicate: (id: string) => void;
-  onElementMove: (id: string, direction: "up" | "down") => void;
-  totalElements: number;
 }
 
 function SortableElement({
   element,
-  index,
   isSelected,
-  onElementClick,
-  onElementUpdate,
-  onElementDelete,
-  onElementDuplicate,
-  onElementMove,
-  totalElements
+  onElementClick
 }: SortableElementProps) {
   const {
     attributes,
@@ -83,13 +65,19 @@ function SortableElement({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onElementClick(element.id);
   };
 
   const commonProps = {
     element,
-    onUpdate: (updates: Partial<EmailElement>) => onElementUpdate(element.id, updates),
-    isSelected,
-    isPreview: false
+    onUpdate: () => {}, // No updates in preview mode
+    isSelected: false, // Always false in preview
+    isPreview: true // Always true in preview
   };
 
   let ElementComponent;
@@ -98,7 +86,7 @@ function SortableElement({
       ElementComponent = <TextElement {...commonProps} />;
       break;
     case "image":
-      ElementComponent = <ImageElement {...commonProps} onImageClick={() => onElementClick(element.id)} />;
+      ElementComponent = <ImageElement {...commonProps} />;
       break;
     case "button":
       ElementComponent = <ButtonElement {...commonProps} />;
@@ -110,139 +98,65 @@ function SortableElement({
       ElementComponent = <SocialElement {...commonProps} />;
       break;
     default:
-      ElementComponent = <div className="text-gray-500 italic">Okänt element</div>;
+      return null;
   }
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`group relative cursor-pointer transition-all ${
-        isDragging 
-          ? "opacity-50 z-50" 
-          : isSelected 
-            ? "ring-2 ring-blue-500 bg-blue-50/30" 
-            : "hover:ring-2 hover:ring-blue-300"
+      className={`relative group cursor-pointer transition-all duration-200 ${
+        isSelected 
+          ? 'ring-2 ring-blue-500 ring-offset-2' 
+          : 'hover:ring-2 hover:ring-blue-200 hover:ring-offset-1'
       }`}
-      onClick={() => onElementClick(element.id)}
+      onClick={handleClick}
+      {...attributes}
+      {...listeners}
     >
-      {/* Drag Handle */}
-      <div
-        {...attributes}
-        {...listeners}
-        className={`absolute left-2 top-2 z-10 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing ${
-          isSelected ? "opacity-100" : ""
-        }`}
-      >
-        <div className="bg-white shadow-md rounded p-1 border">
-          <GripVertical className="h-3 w-3 text-gray-500" />
-        </div>
-      </div>
-
-      {/* Element Controls */}
-      <div className={`absolute top-2 right-2 z-10 flex gap-1 transition-opacity ${
-        isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-      }`}>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onElementMove(element.id, "up");
-          }}
-          disabled={index === 0}
-          className="h-6 w-6 p-0 bg-white shadow-md"
-        >
-          <ChevronUp className="h-3 w-3" />
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onElementMove(element.id, "down");
-          }}
-          disabled={index === totalElements - 1}
-          className="h-6 w-6 p-0 bg-white shadow-md"
-        >
-          <ChevronDown className="h-3 w-3" />
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onElementDuplicate(element.id);
-          }}
-          className="h-6 w-6 p-0 bg-white shadow-md"
-        >
-          <Copy className="h-3 w-3" />
-        </Button>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (confirm("Är du säker på att du vill ta bort detta element?")) {
-              onElementDelete(element.id);
-            }
-          }}
-          className="h-6 w-6 p-0 bg-white shadow-md"
-        >
-          <Trash2 className="h-3 w-3" />
-        </Button>
-      </div>
-
-      <div className="p-4">
+      {/* Element Content */}
+      <div className="p-2">
         {ElementComponent}
       </div>
+
+      {/* Selection indicator */}
+      {isSelected && (
+        <div className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-br">
+          {element.type}
+        </div>
+      )}
     </div>
   );
 }
 
-export default function EmailBuilder({ elements, onElementsChange }: EmailBuilderProps) {
+export default function EmailBuilder({ 
+  elements, 
+  onElementsChange 
+}: EmailBuilderProps) {
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
 
+  const selectedElement = selectedElementId ? elements.find(el => el.id === selectedElementId) || null : null;
+
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
-  // Debug: Track elements changes
-  useEffect(() => {
-    console.log('🔄 Elements array changed:', elements.map(el => `${el.type}(${el.id?.slice(-6) || 'no-id'})`));
-  }, [elements]);
-
-  const selectedElement = elements.find(el => el.id === selectedElementId);
-
-  const handleElementAdd = (newElement: Partial<EmailElement>) => {
-    const element: EmailElement = {
-      id: newElement.id || Date.now().toString() + Math.random().toString(36).substring(2, 11),
-      type: newElement.type || "text",
-      ...newElement
-    };
-    console.log('➕ Adding element:', `${element.type}(${element.id.slice(-6)})`, 'Current count:', elements.length);
-    const newElements = [...elements, element];
-    console.log('📋 New elements array:', newElements.map(el => `${el.type}(${el.id.slice(-6)})`));
-    onElementsChange(newElements);
-    setSelectedElementId(element.id); // Auto-select new element
-  };
-
-  const handleMultipleElementsAdd = (newElements: Partial<EmailElement>[]) => {
-    const elementsToAdd = newElements.map(newElement => ({
-      id: newElement.id || Date.now().toString() + Math.random().toString(36).substring(2, 11),
-      type: newElement.type || "text",
-      ...newElement
-    }));
-    
-    console.log('➕ Adding multiple elements:', elementsToAdd.map(el => `${el.type}(${el.id.slice(-6)})`));
-    const finalElements = [...elements, ...elementsToAdd];
-    console.log('📋 Final elements array:', finalElements.map(el => `${el.type}(${el.id.slice(-6)})`));
-    onElementsChange(finalElements);
-  };
+  const handleElementAdd = useCallback((newElement: Partial<EmailElement>) => {
+    const elementWithId = {
+      ...newElement,
+      id: Date.now().toString() + Math.random().toString(36).substring(2, 11)
+    } as EmailElement;
+    onElementsChange([...elements, elementWithId]);
+    setSelectedElementId(elementWithId.id);
+  }, [elements, onElementsChange]);
 
   const handleElementUpdate = useCallback((id: string, updates: Partial<EmailElement>) => {
     const newElements = elements.map(el => 
@@ -251,46 +165,54 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
     onElementsChange(newElements);
   }, [elements, onElementsChange]);
 
-  const handleElementDelete = (id: string) => {
+  const handleElementClick = (elementId: string) => {
+    setSelectedElementId(elementId === selectedElementId ? null : elementId);
+  };
+
+  const handleElementDelete = useCallback((id: string) => {
     const newElements = elements.filter(el => el.id !== id);
     onElementsChange(newElements);
     if (selectedElementId === id) {
       setSelectedElementId(null);
     }
-  };
+  }, [elements, onElementsChange, selectedElementId]);
 
-  const handleElementDuplicate = (id: string) => {
+  const handleElementDuplicate = useCallback((id: string) => {
     const elementToDuplicate = elements.find(el => el.id === id);
     if (elementToDuplicate) {
       const duplicatedElement = {
         ...elementToDuplicate,
         id: Date.now().toString() + Math.random().toString(36).substring(2, 11)
       };
-      
-      const currentIndex = elements.findIndex(el => el.id === id);
-      const newElements = [...elements];
-      newElements.splice(currentIndex + 1, 0, duplicatedElement);
-      
+      const elementIndex = elements.findIndex(el => el.id === id);
+      const newElements = [
+        ...elements.slice(0, elementIndex + 1),
+        duplicatedElement,
+        ...elements.slice(elementIndex + 1)
+      ];
       onElementsChange(newElements);
       setSelectedElementId(duplicatedElement.id);
     }
-  };
+  }, [elements, onElementsChange]);
 
-  const handleElementMove = (id: string, direction: "up" | "down") => {
-    const currentIndex = elements.findIndex(el => el.id === id);
-    if (currentIndex === -1) return;
+  const handleElementMove = useCallback((id: string, direction: "up" | "down") => {
+    const elementIndex = elements.findIndex(el => el.id === id);
+    if (elementIndex === -1) return;
 
-    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    const newIndex = direction === "up" ? elementIndex - 1 : elementIndex + 1;
     if (newIndex < 0 || newIndex >= elements.length) return;
 
     const newElements = [...elements];
-    [newElements[currentIndex], newElements[newIndex]] = [newElements[newIndex], newElements[currentIndex]];
+    [newElements[elementIndex], newElements[newIndex]] = [newElements[newIndex], newElements[elementIndex]];
     onElementsChange(newElements);
+  }, [elements, onElementsChange]);
+
+  const handleElementClose = () => {
+    setSelectedElementId(null);
   };
 
-  const handleElementClick = (elementId: string) => {
-    setSelectedElementId(elementId === selectedElementId ? null : elementId);
-  };
+  const canMoveUp = selectedElement ? elements.findIndex(el => el.id === selectedElement.id) > 0 : false;
+  const canMoveDown = selectedElement ? elements.findIndex(el => el.id === selectedElement.id) < elements.length - 1 : false;
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -305,14 +227,6 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
 
   return (
     <div className="flex flex-row gap-4 h-full">
-      {/* Element Library */}
-      <div className="w-72 flex-shrink-0">
-        <ElementLibrary 
-          onElementAdd={handleElementAdd} 
-          onMultipleElementsAdd={handleMultipleElementsAdd}
-        />
-      </div>
-
       {/* Email Preview */}
       <div className="flex-1 min-w-0">
         <Card className="h-full flex flex-col">
@@ -325,14 +239,14 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
                   size="sm"
                   onClick={() => setPreviewMode("desktop")}
                 >
-                  <Monitor className="h-4 w-4" />
+                  <Monitor className="size-4" />
                 </Button>
                 <Button
                   variant={previewMode === "mobile" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setPreviewMode("mobile")}
                 >
-                  <Smartphone className="h-4 w-4" />
+                  <Smartphone className="size-4" />
                 </Button>
               </div>
             </div>
@@ -343,7 +257,7 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
               <div className="bg-white border rounded-lg overflow-hidden">
                 {elements.length === 0 ? (
                   <div className="p-12 text-center">
-                    <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <Eye className="size-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="font-medium text-gray-900 mb-2">Ditt e-postmeddelande är tomt</h3>
                     <p className="text-sm text-gray-600">
                       Lägg till element från biblioteket för att börja bygga ditt meddelande
@@ -360,18 +274,12 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
                       strategy={verticalListSortingStrategy}
                     >
                       <div className="space-y-0">
-                        {elements.map((element, index) => (
+                        {elements.map((element) => (
                           <SortableElement
                             key={element.id}
                             element={element}
-                            index={index}
                             isSelected={selectedElementId === element.id}
                             onElementClick={handleElementClick}
-                            onElementUpdate={handleElementUpdate}
-                            onElementDelete={handleElementDelete}
-                            onElementDuplicate={handleElementDuplicate}
-                            onElementMove={handleElementMove}
-                            totalElements={elements.length}
                           />
                         ))}
                       </div>
@@ -400,17 +308,19 @@ export default function EmailBuilder({ elements, onElementsChange }: EmailBuilde
         </Card>
       </div>
 
-      {/* Element Settings Panel */}
+      {/* Elements and Settings Combined Panel */}
       <div className="w-80 flex-shrink-0">
-        <StylePanel
-          selectedElement={selectedElement || null}
+        <ElementsAndSettings
+          selectedElement={selectedElement}
           onElementUpdate={handleElementUpdate}
+          onElementAdd={handleElementAdd}
           onElementDelete={handleElementDelete}
           onElementDuplicate={handleElementDuplicate}
           onElementMove={handleElementMove}
-          onClose={() => setSelectedElementId(null)}
-          canMoveUp={selectedElement ? elements.findIndex(el => el.id === selectedElement.id) > 0 : false}
-          canMoveDown={selectedElement ? elements.findIndex(el => el.id === selectedElement.id) < elements.length - 1 : false}
+          onElementClose={handleElementClose}
+          canMoveUp={canMoveUp}
+          canMoveDown={canMoveDown}
+          className="h-full"
         />
       </div>
     </div>
