@@ -49,6 +49,21 @@ export interface EmailElement {
   iconColor?: string;
   iconBackground?: string;
   useColoredIcons?: boolean;
+  
+  // Event template specific properties
+  badgeText?: string; // For customizable badge text like "EXKLUSIV INBJUDAN"
+  gradientStart?: string; // Start color for gradient backgrounds
+  gradientEnd?: string; // End color for gradient backgrounds
+  eventTitle?: string; // Event title text
+  eventSubtitle?: string; // Event subtitle text
+  accentColor?: string; // Accent color for borders and highlights
+  dateIcon?: string; // Icon/emoji for date
+  locationIcon?: string; // Icon/emoji for location  
+  ticketIcon?: string; // Icon/emoji for ticket
+  avatarUrl?: string; // Avatar image URL
+  speakerName?: string; // Speaker name
+  speakerTitle?: string; // Speaker title/role
+  speakerBio?: string; // Speaker biography
 }
 
 export interface EmailTemplate {
@@ -335,6 +350,9 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
       {
         id: "event-header",
         type: "text",
+        badgeText: "EXKLUSIV INBJUDAN",
+        gradientStart: "#7c3aed",
+        gradientEnd: "#a78bfa",
         content: `<div style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); color: white; padding: 50px 20px; text-align: center;">
           <div style="background-color: rgba(255,255,255,0.2); display: inline-block; padding: 8px 20px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; margin-bottom: 20px;">
             EXKLUSIV INBJUDAN
@@ -356,6 +374,12 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
       {
         id: "event-details",
         type: "text",
+        eventTitle: "Digitalt marknadsföringsevent",
+        eventSubtitle: "Lär dig de senaste strategierna och verktygen",
+        accentColor: "#7c3aed",
+        dateIcon: "📅",
+        locationIcon: "📍",
+        ticketIcon: "🎫",
         content: `<div style="padding: 0 20px 40px 20px;">
           <div style="background-color: #faf5ff; border: 2px solid #e9d5ff; border-radius: 12px; padding: 30px; margin: 20px 0;">
             <div style="text-align: center; margin-bottom: 30px;">
@@ -400,6 +424,7 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
       {
         id: "agenda",
         type: "text",
+        accentColor: "#7c3aed",
         content: `<div style="padding: 0 20px 40px 20px;">
           <h3 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 20px 0; text-align: center;">Vad du kommer att lära dig</h3>
           <div style="max-width: 500px; margin: 0 auto;">
@@ -430,6 +455,10 @@ export const EMAIL_TEMPLATES: EmailTemplate[] = [
       {
         id: "speaker-info",
         type: "text",
+        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+        speakerName: "Magnus Andersson",
+        speakerTitle: "Digital marknadsföringsexpert",
+        speakerBio: "Med över 10 års erfarenhet inom digital marknadsföring hjälper Magnus företag att växa online.",
         content: `<div style="padding: 40px 20px; background-color: #f8fafc;">
           <div style="max-width: 400px; margin: 0 auto; text-align: center;">
             <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="Talare" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px auto; display: block;" />
