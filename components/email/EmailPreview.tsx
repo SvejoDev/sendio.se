@@ -4,14 +4,22 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Monitor, Smartphone, X } from "lucide-react";
+import { Monitor, Smartphone, X, User } from "lucide-react";
 import { EmailElement } from "@/data/emailTemplates";
+import VariablePreview from "./VariablePreview";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+interface Contact {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phoneNumber?: string;
+}
 
 interface EmailPreviewProps {
   isOpen: boolean;
@@ -20,11 +28,7 @@ interface EmailPreviewProps {
   fromName: string;
   replyTo: string;
   elements: EmailElement[];
-  contactSample?: {
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-  };
+  contactSample?: Contact;
 }
 
 export default function EmailPreview({
@@ -34,20 +38,21 @@ export default function EmailPreview({
   fromName,
   replyTo,
   elements,
-  contactSample = {
+  contactSample
+}: EmailPreviewProps) {
+  const [viewMode, setViewMode] = useState<"desktop" | "mobile" | "variables">("desktop");
+  const [currentContact, setCurrentContact] = useState<Contact>(contactSample || {
     firstName: "Johan",
     lastName: "Svensson",
     email: "johan@exempel.se"
-  }
-}: EmailPreviewProps) {
-  const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
+  });
 
   // Replace variables in text content
   const replaceVariables = (text: string): string => {
     if (!text) return "";
     return text
-      .replace(/{first_name}/gi, contactSample.firstName || "{first_name}")
-      .replace(/{last_name}/gi, contactSample.lastName || "{last_name}");
+      .replace(/{first_name}/gi, currentContact.firstName || "{first_name}")
+      .replace(/{last_name}/gi, currentContact.lastName || "{last_name}");
   };
 
   // Generate HTML from elements
@@ -152,7 +157,7 @@ export default function EmailPreview({
           <strong>Från:</strong> {fromName || "Ditt företag"} &lt;noreply@sendio.se&gt;
         </div>
         <div style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>
-          <strong>Till:</strong> {contactSample.firstName} {contactSample.lastName} &lt;{contactSample.email}&gt;
+          <strong>Till:</strong> {currentContact.firstName} {currentContact.lastName} &lt;{currentContact.email}&gt;
         </div>
         <div style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>
           <strong>Ämne:</strong> {replaceVariables(subject) || "Ämnesrad"}
@@ -219,7 +224,7 @@ export default function EmailPreview({
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "desktop" | "mobile")} className="h-full flex flex-col">
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "desktop" | "mobile" | "variables")} className="h-full flex flex-col">
             <TabsList className="mx-6 mt-4">
               <TabsTrigger value="desktop" className="gap-2">
                 <Monitor className="h-4 w-4" />
@@ -228,6 +233,10 @@ export default function EmailPreview({
               <TabsTrigger value="mobile" className="gap-2">
                 <Smartphone className="h-4 w-4" />
                 Mobil
+              </TabsTrigger>
+              <TabsTrigger value="variables" className="gap-2">
+                <User className="h-4 w-4" />
+                Kontaktdata
               </TabsTrigger>
             </TabsList>
 
@@ -246,6 +255,15 @@ export default function EmailPreview({
                     {emailContent}
                   </div>
                 </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="variables" className="flex-1 overflow-auto mt-4 px-6 pb-6">
+              <div className="max-w-2xl mx-auto">
+                <VariablePreview
+                  onContactChange={setCurrentContact}
+                  className="h-full"
+                />
               </div>
             </TabsContent>
           </Tabs>

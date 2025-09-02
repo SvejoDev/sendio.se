@@ -254,7 +254,7 @@ export default function EmailBuilder({
 
           <ScrollArea className="flex-1 min-h-0">
             <div className={`p-4 ${previewMode === "mobile" ? "max-w-sm mx-auto" : ""}`}>
-              <div className="bg-white border rounded-lg overflow-hidden">
+              <div className="bg-white border rounded-lg overflow-hidden max-h-none">
                 {elements.length === 0 ? (
                   <div className="p-12 text-center">
                     <Eye className="size-12 text-gray-400 mx-auto mb-4" />
@@ -309,7 +309,7 @@ export default function EmailBuilder({
       </div>
 
       {/* Elements and Settings Combined Panel */}
-      <div className="w-80 flex-shrink-0">
+      <div className="w-96 flex-shrink-0">
         <ElementsAndSettings
           selectedElement={selectedElement}
           onElementUpdate={handleElementUpdate}

@@ -166,8 +166,10 @@ export default function StylePanel({
       </div>
 
       {/* Element-specific editor */}
-      <ScrollArea className="flex-1">
-        {renderElementEditor()}
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="h-full">
+          {renderElementEditor()}
+        </div>
       </ScrollArea>
     </Card>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,6 @@ import EmailBuilder from "@/components/email/EmailBuilder";
 import ImageUpload from "@/components/email/ImageUpload";
 import EmailPreview from "@/components/email/EmailPreview";
 import SubjectLineEditor from "@/components/email/SubjectLineEditor";
-import VariablePreview from "@/components/email/VariablePreview";
 import AutoSaveIndicator from "@/components/campaigns/AutoSaveIndicator";
 import DraftRecoveryDialog from "@/components/campaigns/DraftRecoveryDialog";
 import { useAutoSave, AutoSaveData } from "@/hooks/useAutoSave";
@@ -78,6 +77,7 @@ export default function CreateEmailCampaign() {
   const [showDraftDialog, setShowDraftDialog] = useState(false);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [previewContact, setPreviewContact] = useState({
     firstName: "Johan",
     lastName: "Svensson",
@@ -85,19 +85,7 @@ export default function CreateEmailCampaign() {
   });
   const [testEmailAddress, setTestEmailAddress] = useState("");
   const [isSendingTest, setIsSendingTest] = useState(false);
-
-  const handlePreviewContactChange = useCallback((contact: { 
-    firstName?: string; 
-    lastName?: string; 
-    email?: string; 
-    phoneNumber?: string 
-  }) => {
-    setPreviewContact({
-      firstName: contact.firstName || "",
-      lastName: contact.lastName || "",
-      email: contact.email || ""
-    });
-  }, []);
+  const [isClient, setIsClient] = useState(false);
 
   // Auto-save hook
   const { loadData, clearSavedData, hasUnsavedChanges, forceSave } = useAutoSave(
@@ -105,6 +93,14 @@ export default function CreateEmailCampaign() {
     "email-campaign-draft",
     3000
   );
+
+  // Memoize hasUnsavedChanges to prevent hydration mismatch
+  const hasUnsaved = useMemo(() => isClient ? hasUnsavedChanges() : false, [hasUnsavedChanges, isClient]);
+
+  // Set client flag after hydration
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Check for existing draft on load
   useEffect(() => {
@@ -355,20 +351,12 @@ export default function CreateEmailCampaign() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 min-h-[600px]">
-              <div className="lg:col-span-2">
-                <EmailBuilder
-                  template={emailContent.template}
-                  elements={emailContent.elements}
-                  onElementsChange={handleContentUpdate}
-                />
-              </div>
-              <div className="lg:col-span-1">
-                <VariablePreview
-                  onContactChange={handlePreviewContactChange}
-                  className="h-full"
-                />
-              </div>
+            <div className="h-[calc(100vh-280px)]">
+              <EmailBuilder
+                template={emailContent.template}
+                elements={emailContent.elements}
+                onElementsChange={handleContentUpdate}
+              />
             </div>
           </div>
         );
@@ -503,9 +491,9 @@ export default function CreateEmailCampaign() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-40">
+      <div className="bg-white border-b sticky top-0 z-40 flex-shrink-0">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Button
@@ -531,7 +519,7 @@ export default function CreateEmailCampaign() {
                     setEmailContent(prev => ({ ...prev, lastSaved: timestamp }));
                   }
                 }}
-                disabled={!hasUnsavedChanges()}
+                disabled={!hasUnsaved}
                 size="sm"
                 className="gap-2"
               >
@@ -544,7 +532,7 @@ export default function CreateEmailCampaign() {
       </div>
 
       {/* Step Navigation */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b flex-shrink-0">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-center">
             <div className="flex items-center space-x-8">
@@ -601,12 +589,12 @@ export default function CreateEmailCampaign() {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 flex-1 overflow-hidden">
         {renderStepContent()}
       </div>
 
       {/* Footer Navigation */}
-      <div className="bg-white border-t sticky bottom-0">
+      <div className="bg-white border-t flex-shrink-0">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div>

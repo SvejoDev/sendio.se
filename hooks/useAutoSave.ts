@@ -22,13 +22,22 @@ export function useAutoSave<T extends AutoSaveData>(
   const saveData = useCallback(() => {
     try {
       if (typeof window === 'undefined') return;
+      const timestamp = Date.now();
       const saveData = {
         ...data,
-        lastSaved: Date.now()
+        lastSaved: timestamp
       };
       localStorage.setItem(key, JSON.stringify(saveData));
       console.log("💾 Auto-saved:", key, 'Elements count:', saveData.elements?.length || 0);
-      return Date.now();
+      // Update the data reference to include the new timestamp
+      previousDataRef.current = JSON.stringify({
+        subject: data.subject,
+        fromName: data.fromName,
+        replyTo: data.replyTo,
+        elements: data.elements,
+        template: data.template
+      });
+      return timestamp;
     } catch (error) {
       console.error("Failed to auto-save:", error);
       return null;

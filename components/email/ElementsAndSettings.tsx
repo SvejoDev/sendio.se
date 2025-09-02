@@ -58,7 +58,7 @@ export default function ElementsAndSettings({
           </TabsList>
         </div>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-hidden">
           <TabsContent value="elements" className="h-full m-0">
             <ElementLibrary onElementAdd={onElementAdd} />
           </TabsContent>
